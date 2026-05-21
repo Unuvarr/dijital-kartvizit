@@ -1,38 +1,43 @@
-import { redirect } from 'next/navigation';
+"use client";
+
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
-export const dynamic = 'force-dynamic';
+export default function GatewayPage() {
+  const params = useParams();
+  const router = useRouter();
+  const slug = params.slug as string;
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-// DİKKAT: Next.js 15 ve 16'da params artık asenkron (Promise) oldu, türünü güncelledik
-export default async function NFCRouterPage({ params }: { params: Promise<{ slug: string }> }) {
-  // await ile slug'ı çözümlüyoruz
-  const resolvedParams = await params;
-  const slug = resolvedParams.slug;
+  useEffect(() => {
+    async function checkCard() {
+      const { data, error } = await supabase
+        .from('digital_cards')
+        .select('status')
+        .eq('slug', slug)
+        .single();
 
-  const { data: profile, error } = await supabase
-    .from('digital_cards')
-    .select('status')
-    .eq('slug', slug)
-    .single();
+      if (error) {
+        console.error("Supabase Hatası:", error);
+        setErrorMsg("Kart veritabanında bulunamadı veya bir hata oluştu.");
+        return;
+      }
 
-  // AJANLARIMIZ: Hatayı VS Code terminaline yazdırıyoruz
-  console.log("--- TEST BAŞLADI ---");
-  console.log("ARANAN KART (SLUG):", slug);
-  console.log("SUPABASE HATASI:", error);
-  console.log("SUPABASE'DEN GELEN VERİ:", profile);
-  console.log("--------------------");
+      if (!data) {
+        setErrorMsg("Bu slug için veri bulunamadı.");
+        return;
+      }
 
-  if (error || !profile) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-50 text-gray-800">
-        <h1 className="text-xl font-bold">Geçersiz Kart veya Link Bulunamadı.</h1>
-      </div>
-    );
-  }
+      if (data.status === 'Bos') {
+        router.push(`/register/${slug}`);
+      } else {
+        router.push(`/profile/${slug}`);
+      }
+    }
+    checkCard();
+  }, [slug, router]);
 
-  if (profile.status === 'Bos') {
-    redirect(`/register/${slug}`);
-  } else {
-    redirect(`/profile/${slug}`);
-  }
+  if (errorMsg) return <div className="flex h-screen items-center justify-center text-red-500">{errorMsg}</div>;
+  return <div className="flex h-screen items-center justify-center">Yükleniyor...</div>;
 }
