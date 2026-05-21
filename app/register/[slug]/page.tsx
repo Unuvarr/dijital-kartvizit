@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState, useEffect, use } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
@@ -8,12 +8,30 @@ export default function RegisterPage({ params }: { params: Promise<{ slug: strin
   const { slug } = use(params);
   const router = useRouter();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Başlangıçta yükleniyor modunda
   const [formData, setFormData] = useState({
     first_name: "", last_name: "", phone: "", email: "",
     iban: "", address: "", website: "", instagram: "", linkedin: "",
     twitter: "", wifi_name: "", wifi_password: "", whatsapp: ""
   });
+
+  // 1. Sayfa yüklendiğinde kart aktif mi kontrol et
+  useEffect(() => {
+    async function checkStatus() {
+      const { data, error } = await supabase
+        .from("digital_cards")
+        .select("status")
+        .eq("slug", slug)
+        .single();
+
+      if (error || data?.status === "Aktif") {
+        router.push(`/profile/${slug}`); // Zaten aktifse profile gönder
+      } else {
+        setLoading(false); // Henüz boşsa formu göster
+      }
+    }
+    checkStatus();
+  }, [slug, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,15 +49,16 @@ export default function RegisterPage({ params }: { params: Promise<{ slug: strin
       })
       .eq("slug", slug);
 
-    setLoading(false);
-
     if (error) {
       console.error("Hata:", error);
       alert(`Kayıt Hatası: ${error.message}`);
+      setLoading(false);
     } else {
       router.push(`/profile/${slug}`);
     }
   };
+
+  if (loading) return <div className="flex min-h-screen items-center justify-center">Kontrol ediliyor...</div>;
 
   const inputStyle = "w-full px-4 py-2 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-black outline-none text-gray-900 placeholder-gray-400";
 
@@ -73,14 +92,12 @@ export default function RegisterPage({ params }: { params: Promise<{ slug: strin
           
           <div className="mt-6">
             <button type="submit" disabled={loading} className="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
-              {loading ? "Kaydediliyor..." : "Kartımı Kaydet ve Yayınla"}
+              {loading ? "İşleniyor..." : "Kartımı Kaydet ve Yayınla"}
             </button>
-            <p className="text-center text-xs text-gray-400 mt-3">
-              * Bilgiler bir kez girilir, sonrasında değiştirilemez.
-            </p>
+            <p className="text-center text-xs text-gray-400 mt-3">* Bilgiler bir kez girilir, sonrasında değiştirilemez.</p>
           </div>
         </form>
       </div>
     </div>
   );
-} 
+}
