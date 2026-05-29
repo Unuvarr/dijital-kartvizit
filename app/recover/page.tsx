@@ -22,16 +22,38 @@ export default function RecoverPage() {
       const { data } = await supabase.auth.getUser();
       const user = data.user;
       if (user?.email) {
-        const { data: card } = await supabase
+        // 1) Once bu cihaz/oturum dogrudan sahip mi?
+        const { data: byOwner } = await supabase
           .from("digital_cards")
           .select("slug")
           .eq("owner_id", user.id)
-          .single();
-        if (card?.slug) {
-          router.replace(`/edit/${card.slug}`);
+          .maybeSingle();
+
+        if (byOwner?.slug) {
+          router.replace(`/edit/${byOwner.slug}`);
           return;
         }
-        setError("Bu hesaba bağlı bir kart bulunamadı.");
+
+        // 2) Degilse, kayit e-postasiyla eslesen karti bul ve sahipligi
+        //    bu guncel oturuma geri bagla (eski cihaz tokeni kaybolmus olabilir).
+        const { data: byEmail } = await supabase
+          .from("digital_cards")
+          .select("slug, owner_id")
+          .ilike("owner_email", user.email)
+          .maybeSingle();
+
+        if (byEmail?.slug) {
+          if (byEmail.owner_id !== user.id) {
+            await supabase
+              .from("digital_cards")
+              .update({ owner_id: user.id })
+              .eq("slug", byEmail.slug);
+          }
+          router.replace(`/edit/${byEmail.slug}`);
+          return;
+        }
+
+        setError("Bu e-postaya bağlı bir kart bulunamadı.");
       }
       setChecking(false);
     }

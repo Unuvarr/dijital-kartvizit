@@ -409,6 +409,18 @@ export default function ProfilePage() {
                 />
               )}
             </div>
+
+            {/* Sahibi degilse: kurtarma ipucu */}
+            {!isOwner && (
+              <div className="px-6 pb-6 -mt-1 text-center">
+                <button
+                  onClick={() => router.push("/recover")}
+                  className="text-xs text-black/35 hover:text-black/60 transition-colors"
+                >
+                  Bu kart sana mı ait? Eriş
+                </button>
+              </div>
+            )}
           </div>
         </motion.div>
       </motion.div>
