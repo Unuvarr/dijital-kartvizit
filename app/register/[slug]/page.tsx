@@ -3,101 +3,477 @@
 import { useState, useEffect, use } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import { ensureAnonymousSession, linkRecoveryEmail } from "@/lib/auth";
+import { uploadAvatar } from "@/lib/storage";
+import { motion } from "framer-motion";
+import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
 
-export default function RegisterPage({ params }: { params: Promise<{ slug: string }> }) {
+interface FormData {
+  first_name: string;
+  last_name: string;
+  title?: string;
+  company?: string;
+  phone: string;
+  email: string;
+  whatsapp?: string;
+  website?: string;
+  instagram?: string;
+  linkedin?: string;
+  twitter?: string;
+  iban?: string;
+  address?: string;
+}
+
+export default function RegisterPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = use(params);
   const router = useRouter();
 
-  const [loading, setLoading] = useState(true); // Başlangıçta yükleniyor modunda
-  const [formData, setFormData] = useState({
-    first_name: "", last_name: "", phone: "", email: "",
-    iban: "", address: "", website: "", instagram: "", linkedin: "",
-    twitter: "", wifi_name: "", wifi_password: "", whatsapp: ""
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState<FormData>({
+    first_name: "",
+    last_name: "",
+    title: "",
+    company: "",
+    phone: "",
+    email: "",
+    whatsapp: "",
+    website: "",
+    instagram: "",
+    linkedin: "",
+    twitter: "",
+    iban: "",
+    address: "",
   });
 
-  // 1. Sayfa yüklendiğinde kart aktif mi kontrol et
+  // Kontrol: Eğer kart zaten aktif ise profile'e yönlendir
   useEffect(() => {
     async function checkStatus() {
-      const { data, error } = await supabase
-        .from("digital_cards")
-        .select("status")
-        .eq("slug", slug)
-        .single();
+      try {
+        const { data } = await supabase
+          .from("digital_cards")
+          .select("status")
+          .eq("slug", slug)
+          .single();
 
-      if (error || data?.status === "Aktif") {
-        router.push(`/profile/${slug}`); // Zaten aktifse profile gönder
-      } else {
-        setLoading(false); // Henüz boşsa formu göster
+        if (data?.status === "Aktif") {
+          router.push(`/profile/${slug}`);
+          return;
+        }
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Status kontrol hatası:", err);
+        setLoading(false);
       }
     }
-    checkStatus();
+
+    if (slug) checkStatus();
   }, [slug, router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Fotoğraf en fazla 5 MB olabilir");
+      return;
+    }
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setError(null);
 
-    const { error } = await supabase
-      .from("digital_cards")
-      .update({
-        ...formData,
-        status: "Aktif"
-      })
-      .eq("slug", slug);
+    // Validasyon
+    if (!formData.first_name.trim()) {
+      setError("Ad boş bırakılamaz");
+      return;
+    }
+    if (!formData.last_name.trim()) {
+      setError("Soyad boş bırakılamaz");
+      return;
+    }
+    if (!formData.phone.trim()) {
+      setError("Telefon boş bırakılamaz");
+      return;
+    }
+    if (!formData.email.trim()) {
+      setError("E-posta boş bırakılamaz");
+      return;
+    }
 
-    if (error) {
-      console.error("Hata:", error);
-      alert(`Kayıt Hatası: ${error.message}`);
-      setLoading(false);
-    } else {
-      router.push(`/profile/${slug}`);
+    setSubmitting(true);
+
+    try {
+      const email = formData.email.trim();
+
+      // 1. Cihaz icin sessizce anonim oturum ac (kullanici farketmez).
+      //    Bu oturum cihazda kalir -> sonraki girislerde "Duzenle" otomatik cikar.
+      const ownerId = await ensureAnonymousSession();
+
+      // 2. Fotograf secildiyse yukle, public URL al.
+      let avatarUrl: string | null = null;
+      if (avatarFile) {
+        avatarUrl = await uploadAvatar(slug, avatarFile);
+      }
+
+      // 3. Bos karti sahiplen: owner_id'yi kendimize yaz, bilgileri kaydet.
+      //    RLS sayesinde bunu sadece bos bir kart icin yapabiliyoruz.
+      const { error: updateError } = await supabase
+        .from("digital_cards")
+        .update({
+          first_name: formData.first_name.trim(),
+          last_name: formData.last_name.trim(),
+          title: formData.title?.trim() || null,
+          company: formData.company?.trim() || null,
+          avatar_url: avatarUrl,
+          phone: formData.phone.trim(),
+          email,
+          whatsapp: formData.whatsapp?.trim() || null,
+          website: formData.website?.trim() || null,
+          instagram: formData.instagram?.trim() || null,
+          linkedin: formData.linkedin?.trim() || null,
+          twitter: formData.twitter?.trim() || null,
+          iban: formData.iban?.trim() || null,
+          address: formData.address?.trim() || null,
+          status: "Aktif",
+          owner_id: ownerId,
+          owner_email: email,
+        })
+        .eq("slug", slug);
+
+      if (updateError) {
+        throw new Error(updateError.message);
+      }
+
+      // 3. Kurtarma icin e-postayi hesaba bagla (cihaz kaybinda erisim geri alinir).
+      //    Basarisiz olsa bile kayit gecerli; cihaz zaten taniniyor.
+      try {
+        await linkRecoveryEmail(email);
+      } catch {
+        // sessizce gec - kurtarma bag(lan)masi zorunlu degil
+      }
+
+      setSuccess(true);
+
+      setTimeout(() => {
+        router.push(`/profile/${slug}`);
+      }, 2000);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Kayıt sırasında bir hata oluştu"
+      );
+      setSubmitting(false);
     }
   };
 
-  if (loading) return <div className="flex min-h-screen items-center justify-center">Kontrol ediliyor...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="relative w-14 h-14 mx-auto mb-4">
+            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#6366f1] border-r-[#8b5cf6] animate-spin" />
+            <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-[#a5b4fc] animate-spin [animation-direction:reverse]" />
+          </div>
+          <p className="text-black/50 text-sm">Kontrol ediliyor...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const inputStyle = "w-full px-4 py-2 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-black outline-none text-gray-900 placeholder-gray-400";
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 120, damping: 16 }}
+          className="neon-border"
+        >
+          <div className="glass rounded-[2rem] px-10 py-12 text-center max-w-md">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 12 }}
+              className="text-6xl mb-4"
+            >
+              ✅
+            </motion.div>
+            <h2 className="text-3xl font-bold neon-text mb-2">Başarılı!</h2>
+            <p className="text-black/55">
+              Kartın kaydedildi. Yönlendiriliyorsun...
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4 font-sans flex justify-center">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">Kartını Aktifleştir</h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div><label className="block text-sm font-semibold text-gray-700 mb-1">Ad *</label><input required type="text" name="first_name" onChange={handleChange} className={inputStyle} /></div>
-            <div><label className="block text-sm font-semibold text-gray-700 mb-1">Soyad *</label><input required type="text" name="last_name" onChange={handleChange} className={inputStyle} /></div>
-          </div>
+    <div className="min-h-screen py-12 px-4">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="max-w-md mx-auto"
+      >
+        <motion.div variants={itemVariants} className="text-center mb-8">
+          <h1 className="text-4xl font-bold neon-text mb-2">Kartını Oluştur</h1>
+          <p className="text-black/55">Bilgilerini gir ve dünyaya paylaş</p>
+        </motion.div>
 
-          <div><label className="block text-sm font-semibold text-gray-700 mb-1">Telefon *</label><input required type="tel" name="phone" onChange={handleChange} className={inputStyle} placeholder="0555..." /></div>
-          <div><label className="block text-sm font-semibold text-gray-700 mb-1">WhatsApp Numarası</label><input type="tel" name="whatsapp" onChange={handleChange} className={inputStyle} placeholder="5551234567" /></div>
-          <div><label className="block text-sm font-semibold text-gray-700 mb-1">E-posta</label><input type="email" name="email" onChange={handleChange} className={inputStyle} /></div>
-          <div><label className="block text-sm font-semibold text-gray-700 mb-1">Web Sitesi</label><input type="url" name="website" onChange={handleChange} className={inputStyle} /></div>
-          <div><label className="block text-sm font-semibold text-gray-700 mb-1">IBAN</label><input type="text" name="iban" onChange={handleChange} className={inputStyle} /></div>
-          <div><label className="block text-sm font-semibold text-gray-700 mb-1">Açık Adres</label><textarea name="address" rows={2} onChange={handleChange} className={inputStyle}></textarea></div>
+        <motion.div variants={cardVariants} className="neon-border">
+          <div className="glass rounded-[2rem] p-8">
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 rounded-xl border border-red-500/30 bg-red-500/[0.06]"
+              >
+                <p className="text-red-600 text-sm">{error}</p>
+              </motion.div>
+            )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div><label className="block text-sm font-semibold text-gray-700 mb-1">Instagram</label><input type="text" name="instagram" onChange={handleChange} className={inputStyle} /></div>
-            <div><label className="block text-sm font-semibold text-gray-700 mb-1">LinkedIn</label><input type="text" name="linkedin" onChange={handleChange} className={inputStyle} /></div>
-          </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Profil Fotografi */}
+              <div className="flex flex-col items-center pb-6 border-b border-black/[0.06]">
+                <label className="cursor-pointer group">
+                  <div className="relative w-28 h-28">
+                    <div className="absolute -inset-1 rounded-full bg-[linear-gradient(135deg,#4f46e5,#7c3aed)] opacity-30 blur-[2px] group-hover:opacity-60 transition" />
+                    <div className="relative w-28 h-28 rounded-full overflow-hidden bg-black/[0.03] border border-black/10 flex items-center justify-center">
+                      {avatarPreview ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={avatarPreview}
+                          alt="Önizleme"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-3xl text-black/30">＋</span>
+                      )}
+                    </div>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                  />
+                </label>
+                <p className="text-xs text-black/40 mt-3">
+                  Fotoğraf / Logo (isteğe bağlı)
+                </p>
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-             <div><label className="block text-sm font-semibold text-gray-700 mb-1">Wi-Fi Adı</label><input type="text" name="wifi_name" onChange={handleChange} className={inputStyle} placeholder="Ev_Wifi" /></div>
-             <div><label className="block text-sm font-semibold text-gray-700 mb-1">Wi-Fi Şifresi</label><input type="text" name="wifi_password" onChange={handleChange} className={inputStyle} placeholder="Şifre" /></div>
+              {/* Temel Bilgiler */}
+              <div className="space-y-4 pb-6 border-b border-black/[0.06]">
+                <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
+                  Temel Bilgiler
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field
+                    label="Ad *"
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleChange}
+                    placeholder="Ad"
+                    required
+                  />
+                  <Field
+                    label="Soyad *"
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleChange}
+                    placeholder="Soyad"
+                    required
+                  />
+                </div>
+                <Field
+                  label="Ünvan"
+                  name="title"
+                  value={formData.title || ""}
+                  onChange={handleChange}
+                  placeholder="Örn. Pazarlama Müdürü"
+                />
+                <Field
+                  label="Şirket"
+                  name="company"
+                  value={formData.company || ""}
+                  onChange={handleChange}
+                  placeholder="Örn. ABC A.Ş."
+                />
+              </div>
+
+              {/* İletişim */}
+              <div className="space-y-4 pb-6 border-b border-black/[0.06]">
+                <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
+                  İletişim
+                </h3>
+                <Field
+                  label="Telefon *"
+                  name="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="0555..."
+                  required
+                />
+                <Field
+                  label="E-posta *"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+                <Field
+                  label="WhatsApp"
+                  name="whatsapp"
+                  type="tel"
+                  value={formData.whatsapp || ""}
+                  onChange={handleChange}
+                  placeholder="(İsteğe bağlı)"
+                />
+              </div>
+
+              {/* Sosyal Medya */}
+              <div className="space-y-4 pb-6 border-b border-black/[0.06]">
+                <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
+                  Sosyal Medya
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field
+                    label="Instagram"
+                    name="instagram"
+                    value={formData.instagram || ""}
+                    onChange={handleChange}
+                    placeholder="@username"
+                  />
+                  <Field
+                    label="LinkedIn"
+                    name="linkedin"
+                    value={formData.linkedin || ""}
+                    onChange={handleChange}
+                    placeholder="linkedin.com/in/..."
+                  />
+                </div>
+                <Field
+                  label="Twitter"
+                  name="twitter"
+                  value={formData.twitter || ""}
+                  onChange={handleChange}
+                  placeholder="@username"
+                />
+              </div>
+
+              {/* Ek Bilgiler */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
+                  Ek Bilgiler
+                </h3>
+                <Field
+                  label="Web Sitesi"
+                  name="website"
+                  type="url"
+                  value={formData.website || ""}
+                  onChange={handleChange}
+                  placeholder="https://..."
+                />
+                <Field
+                  label="IBAN"
+                  name="iban"
+                  value={formData.iban || ""}
+                  onChange={handleChange}
+                />
+                <div>
+                  <label className="block text-sm font-medium text-black/70 mb-1.5">
+                    Adres
+                  </label>
+                  <textarea
+                    name="address"
+                    value={formData.address || ""}
+                    onChange={handleChange}
+                    rows={2}
+                    className="input-neon resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={submitting}
+                className="btn-neon w-full py-3.5 rounded-xl font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+              >
+                {submitting ? "Kaydediliyor..." : "✓ Kartımı Kaydet"}
+              </motion.button>
+            </form>
+
+            <p className="mt-5 text-center text-xs text-black/40">
+              💡 Bu cihazdan kayıt yapıyorsunuz
+            </p>
           </div>
-          
-          <div className="mt-6">
-            <button type="submit" disabled={loading} className="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
-              {loading ? "İşleniyor..." : "Kartımı Kaydet ve Yayınla"}
-            </button>
-            <p className="text-center text-xs text-gray-400 mt-3">* Bilgiler bir kez girilir, sonrasında değiştirilemez.</p>
-          </div>
-        </form>
-      </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  name,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  required = false,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  type?: string;
+  required?: boolean;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-black/70 mb-1.5">
+        {label}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        className="input-neon"
+      />
     </div>
   );
 }

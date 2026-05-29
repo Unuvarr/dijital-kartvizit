@@ -13,29 +13,39 @@ export default function GatewayPage() {
 
   useEffect(() => {
     async function checkCard() {
-      const { data, error } = await supabase
-        .from("digital_cards")
-        .select("status")
-        .eq("slug", slug)
-        .single();
+      if (!slug) return;
 
-      if (error) {
-        console.error("Supabase Hatası:", error);
-        setErrorMsg("Kart veritabanında bulunamadı veya bir hata oluştu.");
-        return;
-      }
+      try {
+        const { data, error } = await supabase
+          .from("digital_cards")
+          .select("status")
+          .eq("slug", slug)
+          .single();
 
-      if (!data) {
-        setErrorMsg("Bu slug için veri bulunamadı.");
-        return;
-      }
+        if (error) {
+          console.error("Supabase Hatası:", error);
+          setErrorMsg("❌ Bu kart bulunamadı");
+          return;
+        }
 
-      if (data.status === "Bos") {
-        router.push(`/register/${slug}`);
-      } else {
-        router.push(`/profile/${slug}`);
+        if (!data) {
+          setErrorMsg("❌ Bu slug sistemde kayıtlı değil");
+          return;
+        }
+
+        // Eğer status "Bos" ise registro sayfasına git
+        if (data.status === "Bos") {
+          router.push(`/register/${slug}`);
+        } else {
+          // Aktif ise profile'e git
+          router.push(`/profile/${slug}`);
+        }
+      } catch (err) {
+        console.error("Beklenmeyen hata:", err);
+        setErrorMsg("❌ Bir hata oluştu");
       }
     }
+
     checkCard();
   }, [slug, router]);
 
@@ -64,7 +74,7 @@ export default function GatewayPage() {
           <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#6366f1] border-r-[#8b5cf6] animate-spin" />
           <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-[#a5b4fc] animate-spin [animation-direction:reverse]" />
         </div>
-        <p className="neon-text font-semibold">Yükleniyor...</p>
+        <p className="neon-text font-semibold">Kartın Yükleniyor...</p>
       </div>
     </div>
   );
