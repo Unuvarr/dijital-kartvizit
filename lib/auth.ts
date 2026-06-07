@@ -39,15 +39,25 @@ export async function linkRecoveryEmail(email: string): Promise<void> {
 
 /**
  * Kurtarma akisi: e-postaya tek kullanimlik giris linki gonderir.
- * Link tiklaninca ayni hesaba giris yapilir.
+ * /api/recover route'u rate-limited (IP basina dk'da 3) ve sunucudan gonderir.
  */
-export async function sendRecoveryLink(email: string): Promise<void> {
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo:
-        typeof window !== "undefined" ? `${window.location.origin}/recover` : undefined,
-    },
+export async function sendRecoveryLink(
+  email: string,
+  slug?: string
+): Promise<void> {
+  const res = await fetch("/api/recover", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email, slug }),
   });
-  if (error) throw new Error(error.message);
+  if (!res.ok) {
+    let msg = "Link gonderilemedi";
+    try {
+      const body = await res.json();
+      if (body?.error) msg = body.error;
+    } catch {
+      // ignore
+    }
+    throw new Error(msg);
+  }
 }

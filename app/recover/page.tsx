@@ -14,15 +14,55 @@ export default function RecoverPage() {
   const [sending, setSending] = useState(false);
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Hangi karta erismek istiyoruz? (profilden "Eris" ile gelinirse dolu olur)
+  const [slug] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return new URLSearchParams(window.location.search).get("slug");
+  });
 
   // Magic link'e tiklayip geri donen kullaniciyi yakala:
-  // gercek (e-postali) oturum varsa kartini bulup duzenlemeye yonlendir.
+  // gercek (e-postali) oturum varsa ilgili karti bulup duzenlemeye yonlendir.
   useEffect(() => {
     async function check() {
       const { data } = await supabase.auth.getUser();
       const user = data.user;
       if (user?.email) {
-        // 1) Once bu cihaz/oturum dogrudan sahip mi? (birden fazla olabilir -> ilki)
+        const userEmail = user.email.toLowerCase();
+
+        // A) Belirli bir kart hedefleniyorsa SADECE o karta odaklan.
+        if (slug) {
+          const { data: card } = await supabase
+            .from("digital_cards")
+            .select("slug, owner_id, owner_email")
+            .eq("slug", slug)
+            .maybeSingle();
+
+          if (!card) {
+            setError("Kart bulunamadı.");
+            setChecking(false);
+            return;
+          }
+          // Zaten bu cihazin sahibi
+          if (card.owner_id === user.id) {
+            router.replace(`/edit/${card.slug}`);
+            return;
+          }
+          // E-posta bu kartin kayit e-postasiyla eslesiyorsa sahipligi bagla
+          if (card.owner_email && card.owner_email.toLowerCase() === userEmail) {
+            await supabase
+              .from("digital_cards")
+              .update({ owner_id: user.id })
+              .eq("slug", card.slug);
+            router.replace(`/edit/${card.slug}`);
+            return;
+          }
+          // Eslesmedi -> baska karta GONDERME, net uyari ver
+          setError("Bu kart bu e-postaya ait değil.");
+          setChecking(false);
+          return;
+        }
+
+        // B) Slug yoksa: hesabin kendi kartini bul (genel kurtarma).
         const { data: ownerCards } = await supabase
           .from("digital_cards")
           .select("slug")
@@ -35,9 +75,6 @@ export default function RecoverPage() {
           return;
         }
 
-        // 2) Degilse, kayit e-postasiyla eslesen karti bul ve sahipligi
-        //    bu guncel oturuma geri bagla (eski cihaz tokeni kaybolmus olabilir).
-        //    Ayni e-postaya birden fazla kart bagliysa ilkini al (cokme olmasin).
         const { data: emailCards } = await supabase
           .from("digital_cards")
           .select("slug, owner_id")
@@ -61,7 +98,7 @@ export default function RecoverPage() {
       setChecking(false);
     }
     check();
-  }, [router]);
+  }, [router, slug]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +109,7 @@ export default function RecoverPage() {
     }
     setSending(true);
     try {
-      await sendRecoveryLink(email.trim());
+      await sendRecoveryLink(email.trim(), slug ?? undefined);
       setSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Link gönderilemedi");

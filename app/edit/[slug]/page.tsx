@@ -7,7 +7,8 @@ import { getCurrentUserId } from "@/lib/auth";
 import { uploadAvatar } from "@/lib/storage";
 import { motion, AnimatePresence } from "framer-motion";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
-import { FaSave, FaArrowLeft, FaCheck, FaExclamationCircle } from "react-icons/fa";
+import { FaSave, FaArrowLeft, FaCheck, FaExclamationCircle, FaPalette } from "react-icons/fa";
+import { THEMES, type ThemeKey, themeStyle } from "@/lib/types";
 
 interface FormData {
   first_name: string;
@@ -59,6 +60,8 @@ export default function EditPage({
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [theme, setTheme] = useState<ThemeKey>("indigo");
+  const [originalTheme, setOriginalTheme] = useState<ThemeKey>("indigo");
 
   // Veriyi yükle
   useEffect(() => {
@@ -98,6 +101,9 @@ export default function EditPage({
 
             setFormData(formData);
             setOriginalData(formData);
+            const t = (data.theme as ThemeKey) || "indigo";
+            setTheme(t);
+            setOriginalTheme(t);
           } else {
             setError("Bu kartı düzenlemek için izniniz yok");
           }
@@ -184,6 +190,7 @@ export default function EditPage({
           twitter: formData.twitter?.trim() || null,
           iban: formData.iban?.trim() || null,
           address: formData.address?.trim() || null,
+          theme,
         })
         .eq("slug", slug);
 
@@ -195,6 +202,7 @@ export default function EditPage({
       setAvatarFile(null);
       setSuccess(true);
       setOriginalData(formData);
+      setOriginalTheme(theme);
 
       setTimeout(() => {
         setSuccess(false);
@@ -264,7 +272,8 @@ export default function EditPage({
 
   const hasChanges =
     JSON.stringify(formData) !== JSON.stringify(originalData) ||
-    avatarFile !== null;
+    avatarFile !== null ||
+    theme !== originalTheme;
 
   const fieldGroups = [
     {
@@ -381,6 +390,57 @@ export default function EditPage({
               </label>
               <p className="text-xs text-black/40 mt-3">
                 Değiştirmek için tıkla (maks. 5 MB)
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Tema secici */}
+          <motion.div variants={cardVariants} className="neon-border">
+            <div className="glass rounded-[2rem] p-6" style={themeStyle(theme)}>
+              <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <FaPalette /> Tema
+              </h2>
+              <div className="grid grid-cols-5 gap-3">
+                {(Object.keys(THEMES) as ThemeKey[]).map((key) => {
+                  const t = THEMES[key];
+                  const active = theme === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setTheme(key)}
+                      className={`relative h-16 rounded-xl overflow-hidden transition ${
+                        active
+                          ? "ring-2 ring-offset-2 ring-offset-white"
+                          : "ring-1 ring-black/10 hover:ring-black/20"
+                      }`}
+                      style={
+                        active
+                          ? ({
+                              ["--tw-ring-color" as string]: t.accent,
+                            } as React.CSSProperties)
+                          : undefined
+                      }
+                      aria-label={t.name}
+                    >
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          background: `linear-gradient(135deg, ${t.accent}, ${t.accent2})`,
+                        }}
+                      />
+                      {active && (
+                        <FaCheck className="absolute top-1.5 right-1.5 text-white text-xs drop-shadow" />
+                      )}
+                      <span className="absolute bottom-1 left-2 text-[10px] font-medium text-white drop-shadow">
+                        {t.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-black/40 mt-3">
+                Profil sayfası butonları ve vurguları seçilen renge döner.
               </p>
             </div>
           </motion.div>
