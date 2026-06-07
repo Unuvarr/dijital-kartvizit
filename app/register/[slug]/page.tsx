@@ -129,6 +129,23 @@ export default function RegisterPage({
     try {
       const email = formData.email.trim();
 
+      // 0. Kural: bir e-posta = tek kart. Bu e-posta ile zaten Aktif bir kart
+      //    varsa yeni kayda izin verme; kullaniciyi kurtarmaya yonlendir.
+      const { data: existing } = await supabase
+        .from("digital_cards")
+        .select("slug")
+        .ilike("owner_email", email)
+        .eq("status", "Aktif")
+        .limit(1);
+
+      if (existing && existing.length > 0) {
+        setSubmitting(false);
+        setError(
+          "Bu e-posta ile zaten bir kartınız var. Mevcut kartınıza erişmek için \"Erişimi Geri Al\" sayfasını kullanın."
+        );
+        return;
+      }
+
       // 1. Cihaz icin sessizce anonim oturum ac (kullanici farketmez).
       //    Bu oturum cihazda kalir -> sonraki girislerde "Duzenle" otomatik cikar.
       const ownerId = await ensureAnonymousSession();

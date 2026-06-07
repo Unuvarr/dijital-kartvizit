@@ -22,13 +22,14 @@ export default function RecoverPage() {
       const { data } = await supabase.auth.getUser();
       const user = data.user;
       if (user?.email) {
-        // 1) Once bu cihaz/oturum dogrudan sahip mi?
-        const { data: byOwner } = await supabase
+        // 1) Once bu cihaz/oturum dogrudan sahip mi? (birden fazla olabilir -> ilki)
+        const { data: ownerCards } = await supabase
           .from("digital_cards")
           .select("slug")
           .eq("owner_id", user.id)
-          .maybeSingle();
+          .limit(1);
 
+        const byOwner = ownerCards?.[0];
         if (byOwner?.slug) {
           router.replace(`/edit/${byOwner.slug}`);
           return;
@@ -36,12 +37,14 @@ export default function RecoverPage() {
 
         // 2) Degilse, kayit e-postasiyla eslesen karti bul ve sahipligi
         //    bu guncel oturuma geri bagla (eski cihaz tokeni kaybolmus olabilir).
-        const { data: byEmail } = await supabase
+        //    Ayni e-postaya birden fazla kart bagliysa ilkini al (cokme olmasin).
+        const { data: emailCards } = await supabase
           .from("digital_cards")
           .select("slug, owner_id")
           .ilike("owner_email", user.email)
-          .maybeSingle();
+          .limit(1);
 
+        const byEmail = emailCards?.[0];
         if (byEmail?.slug) {
           if (byEmail.owner_id !== user.id) {
             await supabase
