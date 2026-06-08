@@ -1,19 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { getCurrentUserId } from "@/lib/auth";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
-import {
-  FaUserPlus,
-  FaEdit,
-  FaExternalLinkAlt,
-  FaIdCard,
-} from "react-icons/fa";
+import { FaUserPlus, FaIdCard, FaArrowLeft } from "react-icons/fa";
 import type { Profile } from "@/lib/types";
 
 interface LeadRow {
@@ -116,6 +110,12 @@ export default function DashboardPage() {
         className="max-w-3xl mx-auto space-y-6"
       >
         <motion.div variants={itemVariants}>
+          <button
+            onClick={() => router.back()}
+            className="glass-soft inline-flex items-center gap-2 text-black/70 hover:text-black px-4 py-2 rounded-xl transition-colors mb-4"
+          >
+            <FaArrowLeft className="text-xs" /> Geri
+          </button>
           <h1 className="text-3xl font-bold neon-text">Kartlarım</h1>
           <p className="text-sm text-black/55 mt-1">
             Tüm kartların, görüntülenme ve gelen iletişimler tek yerde.
@@ -173,21 +173,6 @@ export default function DashboardPage() {
                     </p>
                     <p className="text-lg font-semibold">{leadCount}</p>
                   </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Link
-                    href={`/profile/${card.slug}`}
-                    className="flex-1 glass-soft rounded-lg py-2 text-xs font-medium text-center hover:bg-black/[0.03] transition-colors flex items-center justify-center gap-1.5"
-                  >
-                    <FaExternalLinkAlt className="text-[10px]" /> Aç
-                  </Link>
-                  <Link
-                    href={`/edit/${card.slug}`}
-                    className="flex-1 btn-neon rounded-lg py-2 text-xs font-medium text-white text-center flex items-center justify-center gap-1.5"
-                  >
-                    <FaEdit className="text-[10px]" /> Düzenle
-                  </Link>
                 </div>
               </div>
             </motion.div>
