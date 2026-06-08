@@ -29,6 +29,9 @@ export default function SocialLinksEditor({
       {value.map((link, i) => {
         const meta = platformMeta(link.platform);
         const isCustom = link.platform === "custom";
+        const prefix = meta?.base?.replace(/^https?:\/\//, "");
+        // Kullanici tam URL yapistirdiysa onek gosterme (kafa karistirmasin)
+        const pastedFullUrl = /^https?:\/\//i.test(link.value || "");
         return (
           <div key={i} className="glass-soft rounded-xl p-3 space-y-2">
             <div className="flex items-center gap-2">
@@ -69,13 +72,28 @@ export default function SocialLinksEditor({
               />
             )}
 
-            <input
-              type="text"
-              value={link.value}
-              onChange={(e) => update(i, { value: e.target.value })}
-              placeholder={meta?.placeholder || "https://..."}
-              className="input-neon py-2"
-            />
+            {prefix && !pastedFullUrl ? (
+              <div className="flex items-stretch rounded-[0.85rem] border border-black/[0.14] bg-white overflow-hidden focus-within:border-[#4f46e5] focus-within:ring-2 focus-within:ring-[#4f46e5]/15 transition">
+                <span className="px-2.5 flex items-center text-xs text-black/45 bg-black/[0.03] border-r border-black/[0.06] whitespace-nowrap">
+                  {prefix}
+                </span>
+                <input
+                  type="text"
+                  value={link.value}
+                  onChange={(e) => update(i, { value: e.target.value })}
+                  placeholder="kullanıcı adı"
+                  className="flex-1 min-w-0 px-3 py-2 bg-transparent outline-none text-sm"
+                />
+              </div>
+            ) : (
+              <input
+                type="text"
+                value={link.value}
+                onChange={(e) => update(i, { value: e.target.value })}
+                placeholder={meta?.placeholder || "https://..."}
+                className="input-neon py-2"
+              />
+            )}
           </div>
         );
       })}
