@@ -60,6 +60,7 @@ export default function ProfileClient({
   const [copied, setCopied] = useState<string | null>(null);
   const [showQR, setShowQR] = useState(false);
   const [showLead, setShowLead] = useState(false);
+  const [showAvatar, setShowAvatar] = useState(false);
   const [activeModal, setActiveModal] = useState<"address" | null>(null);
   const [viewCount, setViewCount] = useState<number | null>(
     profile.view_count ?? null
@@ -213,8 +214,12 @@ export default function ProfileClient({
               className="relative z-10 px-8 pb-7 pt-3 text-center"
             >
               <div className="relative inline-block mb-4">
-                <div className="relative w-24 h-24 rounded-full overflow-hidden flex items-center justify-center bg-[#f0f0f3] ring-1 ring-black/[0.06] shadow-sm">
-                  {profile.avatar_url ? (
+                {profile.avatar_url ? (
+                  <button
+                    onClick={() => setShowAvatar(true)}
+                    aria-label="Fotoğrafı büyüt"
+                    className="relative w-24 h-24 rounded-full overflow-hidden flex items-center justify-center bg-[#f0f0f3] ring-1 ring-black/[0.06] shadow-sm cursor-zoom-in"
+                  >
                     <Image
                       src={profile.avatar_url}
                       alt={`${profile.first_name} ${profile.last_name}`}
@@ -223,13 +228,15 @@ export default function ProfileClient({
                       className="w-full h-full object-cover"
                       priority
                     />
-                  ) : (
+                  </button>
+                ) : (
+                  <div className="relative w-24 h-24 rounded-full overflow-hidden flex items-center justify-center bg-[#f0f0f3] ring-1 ring-black/[0.06] shadow-sm">
                     <span className="text-3xl font-medium text-black/40">
                       {profile.first_name?.[0]}
                       {profile.last_name?.[0]}
                     </span>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
 
               <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">
@@ -381,6 +388,43 @@ export default function ProfileClient({
           </div>
         </motion.div>
       </motion.div>
+
+      {/* Avatar Lightbox */}
+      <AnimatePresence>
+        {showAvatar && profile.avatar_url && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6"
+            onClick={() => setShowAvatar(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 220, damping: 22 }}
+              className="relative"
+            >
+              <Image
+                src={profile.avatar_url}
+                alt={`${profile.first_name} ${profile.last_name}`}
+                width={640}
+                height={640}
+                className="w-[78vw] max-w-sm aspect-square object-cover rounded-3xl shadow-2xl"
+              />
+              <button
+                onClick={() => setShowAvatar(false)}
+                aria-label="Kapat"
+                className="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-white/95 text-black/70 flex items-center justify-center shadow-lg"
+              >
+                <FaTimes />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* QR Modal */}
       <AnimatePresence>
