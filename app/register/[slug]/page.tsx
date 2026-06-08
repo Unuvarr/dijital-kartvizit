@@ -327,32 +327,6 @@ export default function RegisterPage({
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Kapak Fotografi (opsiyonel) */}
-              <div className="pb-6 border-b border-black/[0.06]">
-                <label className="cursor-pointer block group">
-                  <div className="relative w-full aspect-[3/1] rounded-2xl overflow-hidden bg-black/[0.03] border border-black/10 flex items-center justify-center">
-                    {coverPreview ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={coverPreview}
-                        alt="Kapak önizleme"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-sm text-black/40">
-                        ＋ Kapak fotoğrafı ekle (isteğe bağlı)
-                      </span>
-                    )}
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleCoverChange}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-
               {/* Profil Fotografi */}
               <div className="flex flex-col items-center pb-6 border-b border-black/[0.06]">
                 <label className="cursor-pointer group">
@@ -381,6 +355,44 @@ export default function RegisterPage({
                 <p className="text-xs text-black/40 mt-3">
                   Fotoğraf / Logo (isteğe bağlı)
                 </p>
+              </div>
+
+              {/* Kapak Fotografi (opsiyonel) */}
+              <div className="pb-6 border-b border-black/[0.06]">
+                <label className="cursor-pointer block group">
+                  <div className="relative w-full aspect-[3/1] rounded-2xl overflow-hidden bg-black/[0.03] border border-black/10 flex items-center justify-center">
+                    {coverPreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={coverPreview}
+                        alt="Kapak önizleme"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-sm text-black/40">
+                        ＋ Kapak fotoğrafı ekle (isteğe bağlı)
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverChange}
+                    className="hidden"
+                  />
+                </label>
+                {coverPreview && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCoverFile(null);
+                      setCoverPreview(null);
+                    }}
+                    className="mt-2 text-xs text-red-600 hover:text-red-700 transition-colors"
+                  >
+                    Kapağı kaldır
+                  </button>
+                )}
               </div>
 
               {/* Temel Bilgiler */}

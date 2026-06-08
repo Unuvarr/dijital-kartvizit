@@ -65,6 +65,7 @@ export default function EditPage({
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [originalCoverUrl, setOriginalCoverUrl] = useState<string | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [coverCropSrc, setCoverCropSrc] = useState<string | null>(null);
@@ -92,6 +93,7 @@ export default function EditPage({
 
             setAvatarUrl(data.avatar_url || null);
             setCoverUrl(data.cover_url || null);
+            setOriginalCoverUrl(data.cover_url || null);
 
             // Formu doldur
             const formData: FormData = {
@@ -252,6 +254,7 @@ export default function EditPage({
       setAvatarUrl(newAvatarUrl);
       setAvatarFile(null);
       setCoverUrl(newCoverUrl);
+      setOriginalCoverUrl(newCoverUrl);
       setCoverFile(null);
       setSuccess(true);
       setOriginalData(formData);
@@ -328,6 +331,7 @@ export default function EditPage({
     JSON.stringify(formData) !== JSON.stringify(originalData) ||
     avatarFile !== null ||
     coverFile !== null ||
+    coverUrl !== originalCoverUrl ||
     theme !== originalTheme ||
     JSON.stringify(socialLinks) !== originalSocial;
 
@@ -428,40 +432,6 @@ export default function EditPage({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Kapak Fotografi (opsiyonel) */}
-          <motion.div variants={cardVariants} className="neon-border">
-            <div className="glass rounded-[2rem] p-6">
-              <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-4">
-                Kapak Fotoğrafı
-              </h2>
-              <label className="cursor-pointer block group">
-                <div className="relative w-full aspect-[3/1] rounded-2xl overflow-hidden bg-black/[0.03] border border-black/10 flex items-center justify-center">
-                  {coverPreview || coverUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={coverPreview || coverUrl || ""}
-                      alt="Kapak"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-sm text-black/40">
-                      ＋ Kapak ekle (isteğe bağlı)
-                    </span>
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleCoverChange}
-                  className="hidden"
-                />
-              </label>
-              <p className="text-xs text-black/40 mt-3">
-                Değiştirmek için tıkla · geniş (yatay) foto önerilir
-              </p>
-            </div>
-          </motion.div>
-
           {/* Profil Fotografi */}
           <motion.div variants={cardVariants} className="neon-border">
             <div className="glass rounded-[2rem] p-6 flex flex-col items-center">
@@ -494,6 +464,55 @@ export default function EditPage({
               <p className="text-xs text-black/40 mt-3">
                 Değiştirmek için tıkla (maks. 5 MB)
               </p>
+            </div>
+          </motion.div>
+
+          {/* Kapak Fotografi (opsiyonel) */}
+          <motion.div variants={cardVariants} className="neon-border">
+            <div className="glass rounded-[2rem] p-6">
+              <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-4">
+                Kapak Fotoğrafı
+              </h2>
+              <label className="cursor-pointer block group">
+                <div className="relative w-full aspect-[3/1] rounded-2xl overflow-hidden bg-black/[0.03] border border-black/10 flex items-center justify-center">
+                  {coverPreview || coverUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={coverPreview || coverUrl || ""}
+                      alt="Kapak"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm text-black/40">
+                      ＋ Kapak ekle (isteğe bağlı)
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverChange}
+                  className="hidden"
+                />
+              </label>
+              <div className="flex items-center justify-between mt-3">
+                <p className="text-xs text-black/40">
+                  Değiştirmek için tıkla · geniş (yatay) foto önerilir
+                </p>
+                {(coverPreview || coverUrl) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCoverFile(null);
+                      setCoverPreview(null);
+                      setCoverUrl(null);
+                    }}
+                    className="text-xs text-red-600 hover:text-red-700 transition-colors flex-shrink-0"
+                  >
+                    Kapağı kaldır
+                  </button>
+                )}
+              </div>
             </div>
           </motion.div>
 
