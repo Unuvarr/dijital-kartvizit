@@ -15,11 +15,21 @@ export default function AvatarCropper({
   open,
   onCancel,
   onComplete,
+  aspect = 1,
+  cropShape = "round",
+  outW = 512,
+  outH = 512,
+  title = "Fotoğrafı ortala",
 }: {
   imageSrc: string | null;
   open: boolean;
   onCancel: () => void;
   onComplete: (file: File) => void;
+  aspect?: number;
+  cropShape?: "round" | "rect";
+  outW?: number;
+  outH?: number;
+  title?: string;
 }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -34,7 +44,7 @@ export default function AvatarCropper({
     if (!imageSrc || !areaPixels) return;
     setBusy(true);
     try {
-      const file = await cropToFile(imageSrc, areaPixels);
+      const file = await cropToFile(imageSrc, areaPixels, outW, outH);
       onComplete(file);
     } finally {
       setBusy(false);
@@ -61,7 +71,7 @@ export default function AvatarCropper({
           >
             <div className="glass rounded-[1.75rem] p-5">
               <h3 className="text-sm font-semibold text-[#1d1d1f] mb-3 text-center">
-                Fotoğrafı ortala
+                {title}
               </h3>
 
               <div className="relative w-full h-64 rounded-2xl overflow-hidden bg-black/[0.04]">
@@ -69,8 +79,8 @@ export default function AvatarCropper({
                   image={imageSrc}
                   crop={crop}
                   zoom={zoom}
-                  aspect={1}
-                  cropShape="round"
+                  aspect={aspect}
+                  cropShape={cropShape}
                   showGrid={false}
                   onCropChange={setCrop}
                   onZoomChange={setZoom}
@@ -118,14 +128,17 @@ export default function AvatarCropper({
   );
 }
 
-/** Verilen kaynaktan, secilen kare alani kirpip JPEG File olarak dondurur. */
-async function cropToFile(src: string, area: Area): Promise<File> {
+/** Verilen kaynaktan, secilen alani kirpip JPEG File olarak dondurur. */
+async function cropToFile(
+  src: string,
+  area: Area,
+  outW: number,
+  outH: number
+): Promise<File> {
   const image = await loadImage(src);
   const canvas = document.createElement("canvas");
-  // Cikis boyutunu makul tut (512x512) - kaliteli ama hafif
-  const size = 512;
-  canvas.width = size;
-  canvas.height = size;
+  canvas.width = outW;
+  canvas.height = outH;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas desteklenmiyor");
 
@@ -137,8 +150,8 @@ async function cropToFile(src: string, area: Area): Promise<File> {
     area.height,
     0,
     0,
-    size,
-    size
+    outW,
+    outH
   );
 
   const blob: Blob = await new Promise((resolve, reject) =>

@@ -44,6 +44,9 @@ export default function RegisterPage({
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   // Kirpma modali icin secilen ham gorsel
   const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverCropSrc, setCoverCropSrc] = useState<string | null>(null);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
@@ -115,6 +118,23 @@ export default function RegisterPage({
     setCropSrc(null);
   };
 
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Kapak en fazla 5 MB olabilir");
+      return;
+    }
+    setCoverCropSrc(URL.createObjectURL(file));
+    e.target.value = "";
+  };
+
+  const handleCoverCropped = (file: File) => {
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+    setCoverCropSrc(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -163,10 +183,14 @@ export default function RegisterPage({
       //    Bu oturum cihazda kalir -> sonraki girislerde "Duzenle" otomatik cikar.
       const ownerId = await ensureAnonymousSession();
 
-      // 2. Fotograf secildiyse yukle, public URL al.
+      // 2. Fotograf/kapak secildiyse yukle, public URL al.
       let avatarUrl: string | null = null;
       if (avatarFile) {
         avatarUrl = await uploadAvatar(slug, avatarFile);
+      }
+      let coverUrl: string | null = null;
+      if (coverFile) {
+        coverUrl = await uploadAvatar(slug, coverFile);
       }
 
       // 3. Bos karti sahiplen: owner_id'yi kendimize yaz, bilgileri kaydet.
@@ -179,6 +203,7 @@ export default function RegisterPage({
           title: formData.title?.trim() || null,
           company: formData.company?.trim() || null,
           avatar_url: avatarUrl,
+          cover_url: coverUrl,
           phone: formData.phone.trim(),
           email,
           whatsapp: formData.whatsapp?.trim() || null,
@@ -267,6 +292,17 @@ export default function RegisterPage({
         onCancel={() => setCropSrc(null)}
         onComplete={handleCropped}
       />
+      <AvatarCropper
+        open={!!coverCropSrc}
+        imageSrc={coverCropSrc}
+        onCancel={() => setCoverCropSrc(null)}
+        onComplete={handleCoverCropped}
+        aspect={3}
+        cropShape="rect"
+        outW={1200}
+        outH={400}
+        title="Kapağı ortala"
+      />
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -291,6 +327,32 @@ export default function RegisterPage({
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Kapak Fotografi (opsiyonel) */}
+              <div className="pb-6 border-b border-black/[0.06]">
+                <label className="cursor-pointer block group">
+                  <div className="relative w-full aspect-[3/1] rounded-2xl overflow-hidden bg-black/[0.03] border border-black/10 flex items-center justify-center">
+                    {coverPreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={coverPreview}
+                        alt="Kapak önizleme"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-sm text-black/40">
+                        ＋ Kapak fotoğrafı ekle (isteğe bağlı)
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
               {/* Profil Fotografi */}
               <div className="flex flex-col items-center pb-6 border-b border-black/[0.06]">
                 <label className="cursor-pointer group">

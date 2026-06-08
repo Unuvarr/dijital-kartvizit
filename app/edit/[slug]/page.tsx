@@ -64,6 +64,10 @@ export default function EditPage({
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverCropSrc, setCoverCropSrc] = useState<string | null>(null);
   const [theme, setTheme] = useState<ThemeKey>("indigo");
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [originalSocial, setOriginalSocial] = useState<string>("[]");
@@ -87,6 +91,7 @@ export default function EditPage({
             setIsOwner(true);
 
             setAvatarUrl(data.avatar_url || null);
+            setCoverUrl(data.cover_url || null);
 
             // Formu doldur
             const formData: FormData = {
@@ -169,6 +174,23 @@ export default function EditPage({
     setCropSrc(null);
   };
 
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Kapak en fazla 5 MB olabilir");
+      return;
+    }
+    setCoverCropSrc(URL.createObjectURL(file));
+    e.target.value = "";
+  };
+
+  const handleCoverCropped = (file: File) => {
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+    setCoverCropSrc(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -193,10 +215,14 @@ export default function EditPage({
     setSaving(true);
 
     try {
-      // Yeni fotograf secildiyse yukle
+      // Yeni fotograf/kapak secildiyse yukle
       let newAvatarUrl = avatarUrl;
       if (avatarFile) {
         newAvatarUrl = await uploadAvatar(slug, avatarFile);
+      }
+      let newCoverUrl = coverUrl;
+      if (coverFile) {
+        newCoverUrl = await uploadAvatar(slug, coverFile);
       }
 
       const { error: updateError } = await supabase
@@ -207,6 +233,7 @@ export default function EditPage({
           title: formData.title?.trim() || null,
           company: formData.company?.trim() || null,
           avatar_url: newAvatarUrl,
+          cover_url: newCoverUrl,
           phone: formData.phone.trim(),
           email: formData.email.trim(),
           whatsapp: formData.whatsapp?.trim() || null,
@@ -224,6 +251,8 @@ export default function EditPage({
 
       setAvatarUrl(newAvatarUrl);
       setAvatarFile(null);
+      setCoverUrl(newCoverUrl);
+      setCoverFile(null);
       setSuccess(true);
       setOriginalData(formData);
       setOriginalTheme(theme);
@@ -298,6 +327,7 @@ export default function EditPage({
   const hasChanges =
     JSON.stringify(formData) !== JSON.stringify(originalData) ||
     avatarFile !== null ||
+    coverFile !== null ||
     theme !== originalTheme ||
     JSON.stringify(socialLinks) !== originalSocial;
 
@@ -339,6 +369,17 @@ export default function EditPage({
         imageSrc={cropSrc}
         onCancel={() => setCropSrc(null)}
         onComplete={handleCropped}
+      />
+      <AvatarCropper
+        open={!!coverCropSrc}
+        imageSrc={coverCropSrc}
+        onCancel={() => setCoverCropSrc(null)}
+        onComplete={handleCoverCropped}
+        aspect={3}
+        cropShape="rect"
+        outW={1200}
+        outH={400}
+        title="Kapağı ortala"
       />
       <motion.div
         variants={containerVariants}
@@ -387,6 +428,40 @@ export default function EditPage({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Kapak Fotografi (opsiyonel) */}
+          <motion.div variants={cardVariants} className="neon-border">
+            <div className="glass rounded-[2rem] p-6">
+              <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-4">
+                Kapak Fotoğrafı
+              </h2>
+              <label className="cursor-pointer block group">
+                <div className="relative w-full aspect-[3/1] rounded-2xl overflow-hidden bg-black/[0.03] border border-black/10 flex items-center justify-center">
+                  {coverPreview || coverUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={coverPreview || coverUrl || ""}
+                      alt="Kapak"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm text-black/40">
+                      ＋ Kapak ekle (isteğe bağlı)
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverChange}
+                  className="hidden"
+                />
+              </label>
+              <p className="text-xs text-black/40 mt-3">
+                Değiştirmek için tıkla · geniş (yatay) foto önerilir
+              </p>
+            </div>
+          </motion.div>
+
           {/* Profil Fotografi */}
           <motion.div variants={cardVariants} className="neon-border">
             <div className="glass rounded-[2rem] p-6 flex flex-col items-center">

@@ -171,8 +171,27 @@ export default function ProfileClient({
       >
         <motion.div variants={cardVariants} className="neon-border">
           <div className="relative rounded-[1.75rem] overflow-hidden glass">
+            {/* Kapak (banner) - opsiyonel */}
+            {profile.cover_url && (
+              <div className="relative w-full aspect-[3/1] bg-[#e9e9ee]">
+                <Image
+                  src={profile.cover_url}
+                  alt=""
+                  fill
+                  sizes="(max-width:768px) 100vw, 448px"
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/25 to-transparent pointer-events-none" />
+              </div>
+            )}
+
             {/* Toolbar */}
-            <div className="relative z-10 flex items-center justify-end gap-2 px-5 pt-5">
+            <div
+              className={`${
+                profile.cover_url ? "absolute top-0 inset-x-0" : "relative"
+              } z-20 flex items-center justify-end gap-2 px-5 pt-5`}
+            >
               <button
                 onClick={handleShare}
                 aria-label="Paylaş"
@@ -215,14 +234,24 @@ export default function ProfileClient({
             {/* Header */}
             <motion.div
               variants={itemVariants}
-              className="relative z-10 px-8 pb-7 pt-3 text-center"
+              className={`relative z-10 px-8 pb-7 text-center ${
+                profile.cover_url ? "pt-0" : "pt-3"
+              }`}
             >
-              <div className="relative inline-block mb-4">
+              <div
+                className={`relative inline-block mb-4 ${
+                  profile.cover_url ? "-mt-14" : ""
+                }`}
+              >
                 {profile.avatar_url ? (
                   <button
                     onClick={() => setShowAvatar(true)}
                     aria-label="Fotoğrafı büyüt"
-                    className="relative w-24 h-24 rounded-full overflow-hidden flex items-center justify-center bg-[#f0f0f3] ring-1 ring-black/[0.06] shadow-sm cursor-zoom-in"
+                    className={`relative w-24 h-24 rounded-full overflow-hidden flex items-center justify-center bg-[#f0f0f3] cursor-zoom-in ${
+                      profile.cover_url
+                        ? "ring-4 ring-white shadow-md"
+                        : "ring-1 ring-black/[0.06] shadow-sm"
+                    }`}
                   >
                     <Image
                       src={profile.avatar_url}
@@ -234,7 +263,13 @@ export default function ProfileClient({
                     />
                   </button>
                 ) : (
-                  <div className="relative w-24 h-24 rounded-full overflow-hidden flex items-center justify-center bg-[#f0f0f3] ring-1 ring-black/[0.06] shadow-sm">
+                  <div
+                    className={`relative w-24 h-24 rounded-full overflow-hidden flex items-center justify-center bg-[#f0f0f3] ${
+                      profile.cover_url
+                        ? "ring-4 ring-white shadow-md"
+                        : "ring-1 ring-black/[0.06] shadow-sm"
+                    }`}
+                  >
                     <span className="text-3xl font-medium text-black/40">
                       {profile.first_name?.[0]}
                       {profile.last_name?.[0]}

@@ -7,6 +7,7 @@ export interface Profile {
   title?: string | null;
   company?: string | null;
   avatar_url?: string | null;
+  cover_url?: string | null;
   email: string;
   phone?: string | null;
   instagram?: string | null;
