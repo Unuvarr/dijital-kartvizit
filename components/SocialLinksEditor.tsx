@@ -2,7 +2,7 @@
 
 import { SOCIAL_PLATFORMS, platformMeta } from "@/lib/socials";
 import type { SocialLink } from "@/lib/types";
-import SocialIcon from "@/components/SocialIcon";
+import PlatformSelect from "@/components/PlatformSelect";
 import { FaPlus, FaTrash } from "react-icons/fa6";
 
 /**
@@ -46,36 +46,11 @@ export default function SocialLinksEditor({
         return (
           <div key={i} className="glass-soft rounded-xl p-3 space-y-2">
             <div className="flex items-center gap-2">
-              <span
-                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-white border border-black/[0.06]"
-                style={{ color: meta?.color || "#6e6e73" }}
-              >
-                <SocialIcon platform={link.platform} className="text-sm" />
-              </span>
-              <select
+              <PlatformSelect
                 value={link.platform}
-                onChange={(e) => update(i, { platform: e.target.value })}
-                className="input-neon flex-1 py-2"
-              >
-                {SOCIAL_PLATFORMS.map((p) => (
-                  <option
-                    key={p.key}
-                    value={p.key}
-                    disabled={
-                      p.key !== "custom" &&
-                      p.key !== link.platform &&
-                      used.has(p.key)
-                    }
-                  >
-                    {p.label}
-                    {p.key !== "custom" &&
-                    p.key !== link.platform &&
-                    used.has(p.key)
-                      ? " (eklendi)"
-                      : ""}
-                  </option>
-                ))}
-              </select>
+                used={used}
+                onChange={(key) => update(i, { platform: key })}
+              />
               <button
                 type="button"
                 onClick={() => remove(i)}
