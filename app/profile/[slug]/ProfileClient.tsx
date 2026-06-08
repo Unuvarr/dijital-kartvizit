@@ -243,7 +243,17 @@ export default function ProfileClient({
                 </p>
               )}
               {profile.phone && (
-                <p className="text-sm text-black/45 mt-1">{profile.phone}</p>
+                <button
+                  onClick={() => handleCopy(profile.phone, "phone")}
+                  className="inline-flex items-center gap-1.5 text-sm text-black/45 hover:text-black/70 transition-colors mt-1"
+                >
+                  <span>{profile.phone}</span>
+                  {copied === "phone" ? (
+                    <FaCheck className="text-[10px] text-emerald-500" />
+                  ) : (
+                    <FaCopy className="text-[10px] text-black/30" />
+                  )}
+                </button>
               )}
             </motion.div>
 
