@@ -243,12 +243,7 @@ export default function ProfileClient({
                 </p>
               )}
               {profile.phone && (
-                <a
-                  href={`tel:${profile.phone}`}
-                  className="inline-block text-sm text-black/45 hover:text-black/70 transition-colors mt-1"
-                >
-                  {profile.phone}
-                </a>
+                <p className="text-sm text-black/45 mt-1">{profile.phone}</p>
               )}
             </motion.div>
 
