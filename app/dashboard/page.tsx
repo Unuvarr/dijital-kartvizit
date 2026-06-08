@@ -110,13 +110,16 @@ export default function DashboardPage() {
         className="max-w-3xl mx-auto space-y-6"
       >
         <motion.div variants={itemVariants}>
-          <button
-            onClick={() => router.back()}
-            className="glass-soft inline-flex items-center gap-2 text-black/70 hover:text-black px-4 py-2 rounded-xl transition-colors mb-4"
-          >
-            <FaArrowLeft className="text-xs" /> Geri
-          </button>
-          <h1 className="text-3xl font-bold neon-text">Kartlarım</h1>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.back()}
+              aria-label="Geri"
+              className="glass-soft inline-flex items-center justify-center w-10 h-10 rounded-xl text-black/70 hover:text-black hover:bg-black/[0.04] transition-colors flex-shrink-0"
+            >
+              <FaArrowLeft className="text-sm" />
+            </button>
+            <h1 className="text-3xl font-bold neon-text">Kartlarım</h1>
+          </div>
           <p className="text-sm text-black/55 mt-1">
             Tüm kartların, görüntülenme ve gelen iletişimler tek yerde.
           </p>
