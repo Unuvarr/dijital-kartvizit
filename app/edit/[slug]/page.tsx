@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
 import { FaSave, FaArrowLeft, FaCheck, FaExclamationCircle, FaPalette } from "react-icons/fa";
 import { THEMES, type ThemeKey, themeStyle } from "@/lib/types";
+import AvatarCropper from "@/components/AvatarCropper";
 
 interface FormData {
   first_name: string;
@@ -60,6 +61,7 @@ export default function EditPage({
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [theme, setTheme] = useState<ThemeKey>("indigo");
   const [originalTheme, setOriginalTheme] = useState<ThemeKey>("indigo");
 
@@ -139,8 +141,14 @@ export default function EditPage({
       setError("Fotoğraf en fazla 5 MB olabilir");
       return;
     }
+    setCropSrc(URL.createObjectURL(file));
+    e.target.value = "";
+  };
+
+  const handleCropped = (file: File) => {
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
+    setCropSrc(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -312,6 +320,12 @@ export default function EditPage({
 
   return (
     <div className="min-h-screen py-12 px-4">
+      <AvatarCropper
+        open={!!cropSrc}
+        imageSrc={cropSrc}
+        onCancel={() => setCropSrc(null)}
+        onComplete={handleCropped}
+      />
       <motion.div
         variants={containerVariants}
         initial="hidden"

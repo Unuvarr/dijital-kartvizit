@@ -7,6 +7,7 @@ import { ensureAnonymousSession, linkRecoveryEmail } from "@/lib/auth";
 import { uploadAvatar } from "@/lib/storage";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
+import AvatarCropper from "@/components/AvatarCropper";
 
 interface FormData {
   first_name: string;
@@ -39,6 +40,8 @@ export default function RegisterPage({
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  // Kirpma modali icin secilen ham gorsel
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     first_name: "",
@@ -98,8 +101,15 @@ export default function RegisterPage({
       setError("Fotoğraf en fazla 5 MB olabilir");
       return;
     }
+    // Once kirpma modalini ac; kullanici ortalayip onaylayinca kaydederiz.
+    setCropSrc(URL.createObjectURL(file));
+    e.target.value = ""; // ayni dosya tekrar secilebilsin
+  };
+
+  const handleCropped = (file: File) => {
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
+    setCropSrc(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -250,6 +260,12 @@ export default function RegisterPage({
 
   return (
     <div className="min-h-screen py-12 px-4">
+      <AvatarCropper
+        open={!!cropSrc}
+        imageSrc={cropSrc}
+        onCancel={() => setCropSrc(null)}
+        onComplete={handleCropped}
+      />
       <motion.div
         variants={containerVariants}
         initial="hidden"
