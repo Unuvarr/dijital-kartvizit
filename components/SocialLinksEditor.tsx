@@ -21,8 +21,19 @@ export default function SocialLinksEditor({
     onChange(next);
   };
   const remove = (i: number) => onChange(value.filter((_, idx) => idx !== i));
-  const add = () =>
-    onChange([...value, { platform: "instagram", value: "" }]);
+
+  // Kullanilan platformlar (custom haric -> custom coklu olabilir)
+  const used = new Set(
+    value.map((l) => l.platform).filter((p) => p !== "custom")
+  );
+
+  const add = () => {
+    // Henuz eklenmemis ilk platformu sec; hepsi doluysa "Ozel link"e dus
+    const next =
+      SOCIAL_PLATFORMS.find((p) => p.key !== "custom" && !used.has(p.key))
+        ?.key || "custom";
+    onChange([...value, { platform: next, value: "" }]);
+  };
 
   return (
     <div className="space-y-3">
@@ -47,8 +58,21 @@ export default function SocialLinksEditor({
                 className="input-neon flex-1 py-2"
               >
                 {SOCIAL_PLATFORMS.map((p) => (
-                  <option key={p.key} value={p.key}>
+                  <option
+                    key={p.key}
+                    value={p.key}
+                    disabled={
+                      p.key !== "custom" &&
+                      p.key !== link.platform &&
+                      used.has(p.key)
+                    }
+                  >
                     {p.label}
+                    {p.key !== "custom" &&
+                    p.key !== link.platform &&
+                    used.has(p.key)
+                      ? " (eklendi)"
+                      : ""}
                   </option>
                 ))}
               </select>
