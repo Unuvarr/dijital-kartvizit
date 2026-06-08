@@ -10,6 +10,8 @@ import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
 import { FaSave, FaArrowLeft, FaCheck, FaExclamationCircle, FaPalette } from "react-icons/fa";
 import { THEMES, type ThemeKey, themeStyle } from "@/lib/types";
 import AvatarCropper from "@/components/AvatarCropper";
+import SocialLinksEditor from "@/components/SocialLinksEditor";
+import type { SocialLink } from "@/lib/types";
 
 interface FormData {
   first_name: string;
@@ -63,6 +65,8 @@ export default function EditPage({
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [theme, setTheme] = useState<ThemeKey>("indigo");
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [originalSocial, setOriginalSocial] = useState<string>("[]");
   const [originalTheme, setOriginalTheme] = useState<ThemeKey>("indigo");
 
   // Veriyi yükle
@@ -106,6 +110,20 @@ export default function EditPage({
             const t = (data.theme as ThemeKey) || "indigo";
             setTheme(t);
             setOriginalTheme(t);
+
+            // Sosyal baglantilar: yeni alan varsa onu kullan; yoksa eski
+            // kolonlardan (instagram/linkedin/twitter) bir kez tasi.
+            let links: SocialLink[] =
+              (data.social_links as SocialLink[] | null) || [];
+            if (links.length === 0) {
+              links = [
+                data.instagram ? { platform: "instagram", value: data.instagram } : null,
+                data.linkedin ? { platform: "linkedin", value: data.linkedin } : null,
+                data.twitter ? { platform: "x", value: data.twitter } : null,
+              ].filter(Boolean) as SocialLink[];
+            }
+            setSocialLinks(links);
+            setOriginalSocial(JSON.stringify(links));
           } else {
             setError("Bu kartı düzenlemek için izniniz yok");
           }
@@ -193,9 +211,7 @@ export default function EditPage({
           email: formData.email.trim(),
           whatsapp: formData.whatsapp?.trim() || null,
           website: formData.website?.trim() || null,
-          instagram: formData.instagram?.trim() || null,
-          linkedin: formData.linkedin?.trim() || null,
-          twitter: formData.twitter?.trim() || null,
+          social_links: socialLinks.filter((l) => l.value && l.value.trim()),
           iban: formData.iban?.trim() || null,
           address: formData.address?.trim() || null,
           theme,
@@ -211,6 +227,7 @@ export default function EditPage({
       setSuccess(true);
       setOriginalData(formData);
       setOriginalTheme(theme);
+      setOriginalSocial(JSON.stringify(socialLinks));
 
       setTimeout(() => {
         setSuccess(false);
@@ -281,7 +298,8 @@ export default function EditPage({
   const hasChanges =
     JSON.stringify(formData) !== JSON.stringify(originalData) ||
     avatarFile !== null ||
-    theme !== originalTheme;
+    theme !== originalTheme ||
+    JSON.stringify(socialLinks) !== originalSocial;
 
   const fieldGroups = [
     {
@@ -291,10 +309,6 @@ export default function EditPage({
     {
       title: "İletişim",
       fields: ["phone", "email", "whatsapp"],
-    },
-    {
-      title: "Sosyal Medya",
-      fields: ["instagram", "linkedin", "twitter"],
     },
     {
       title: "Ek Bilgiler",
@@ -510,6 +524,16 @@ export default function EditPage({
               </div>
             </motion.div>
           ))}
+
+          {/* Sosyal Medya & Bağlantılar */}
+          <motion.div variants={cardVariants} className="neon-border">
+            <div className="glass rounded-[2rem] p-6">
+              <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-6">
+                Sosyal Medya & Bağlantılar
+              </h2>
+              <SocialLinksEditor value={socialLinks} onChange={setSocialLinks} />
+            </div>
+          </motion.div>
 
           {/* Buttons */}
           <motion.div variants={itemVariants} className="flex gap-4">

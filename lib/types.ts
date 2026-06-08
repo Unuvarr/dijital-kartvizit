@@ -20,6 +20,13 @@ export interface Profile {
   owner_email?: string | null;
   theme?: ThemeKey | null;
   view_count?: number | null;
+  social_links?: SocialLink[] | null;
+}
+
+export interface SocialLink {
+  platform: string; // SOCIAL_PLATFORMS key veya "custom"
+  value: string; // kullanici adi veya tam URL
+  label?: string; // sadece "custom" icin gosterilecek ad
 }
 
 export type ThemeKey = "indigo" | "emerald" | "rose" | "amber" | "slate";

@@ -8,6 +8,8 @@ import { uploadAvatar } from "@/lib/storage";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
 import AvatarCropper from "@/components/AvatarCropper";
+import SocialLinksEditor from "@/components/SocialLinksEditor";
+import type { SocialLink } from "@/lib/types";
 
 interface FormData {
   first_name: string;
@@ -42,6 +44,7 @@ export default function RegisterPage({
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   // Kirpma modali icin secilen ham gorsel
   const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
     first_name: "",
@@ -180,9 +183,7 @@ export default function RegisterPage({
           email,
           whatsapp: formData.whatsapp?.trim() || null,
           website: formData.website?.trim() || null,
-          instagram: formData.instagram?.trim() || null,
-          linkedin: formData.linkedin?.trim() || null,
-          twitter: formData.twitter?.trim() || null,
+          social_links: socialLinks.filter((l) => l.value && l.value.trim()),
           iban: formData.iban?.trim() || null,
           address: formData.address?.trim() || null,
           status: "Aktif",
@@ -391,34 +392,12 @@ export default function RegisterPage({
                 />
               </div>
 
-              {/* Sosyal Medya */}
+              {/* Sosyal Medya & Bağlantılar */}
               <div className="space-y-4 pb-6 border-b border-black/[0.06]">
                 <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
-                  Sosyal Medya
+                  Sosyal Medya & Bağlantılar
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <Field
-                    label="Instagram"
-                    name="instagram"
-                    value={formData.instagram || ""}
-                    onChange={handleChange}
-                    placeholder="@username"
-                  />
-                  <Field
-                    label="LinkedIn"
-                    name="linkedin"
-                    value={formData.linkedin || ""}
-                    onChange={handleChange}
-                    placeholder="linkedin.com/in/..."
-                  />
-                </div>
-                <Field
-                  label="Twitter"
-                  name="twitter"
-                  value={formData.twitter || ""}
-                  onChange={handleChange}
-                  placeholder="@username"
-                />
+                <SocialLinksEditor value={socialLinks} onChange={setSocialLinks} />
               </div>
 
               {/* Ek Bilgiler */}

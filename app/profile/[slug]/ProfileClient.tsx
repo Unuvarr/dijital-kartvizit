@@ -8,13 +8,12 @@ import { getCurrentUserId } from "@/lib/auth";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
 import { buildVCard } from "@/lib/vcard";
 import { trackView } from "@/lib/analytics";
-import { themeStyle, type Profile } from "@/lib/types";
+import { themeStyle, type Profile, type SocialLink } from "@/lib/types";
+import { buildSocialHref, platformMeta, socialLabel } from "@/lib/socials";
 import BrandedQR from "@/components/BrandedQR";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
+import SocialIcon from "@/components/SocialIcon";
 import {
-  FaInstagram,
-  FaLinkedin,
-  FaTwitter,
   FaDownload,
   FaEnvelope,
   FaPhone,
@@ -132,11 +131,16 @@ export default function ProfileClient({
     URL.revokeObjectURL(url);
   };
 
-  const socials = [
-    { url: profile.instagram, Icon: FaInstagram, label: "Instagram", color: "#E1306C" },
-    { url: profile.linkedin, Icon: FaLinkedin, label: "LinkedIn", color: "#0A66C2" },
-    { url: profile.twitter, Icon: FaTwitter, label: "Twitter", color: "#1DA1F2" },
-  ].filter((s) => s.url);
+  // Yeni esnek sosyal baglantilar; yoksa eski sabit kolonlara dus.
+  const socials: SocialLink[] = (
+    profile.social_links && profile.social_links.length > 0
+      ? profile.social_links
+      : ([
+          profile.instagram ? { platform: "instagram", value: profile.instagram } : null,
+          profile.linkedin ? { platform: "linkedin", value: profile.linkedin } : null,
+          profile.twitter ? { platform: "x", value: profile.twitter } : null,
+        ].filter(Boolean) as SocialLink[])
+  ).filter((l) => l.value && l.value.trim());
 
   const quickActions = [
     profile.phone
@@ -284,18 +288,23 @@ export default function ProfileClient({
                 variants={itemVariants}
                 className="px-8 pb-5 flex justify-center gap-3"
               >
-                {socials.map(({ url, Icon, label, color }) => (
+                {socials.map((link, i) => (
                   <motion.a
-                    key={label}
-                    href={url || "#"}
+                    key={`${link.platform}-${i}`}
+                    href={buildSocialHref(link)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={label}
+                    aria-label={socialLabel(link)}
+                    title={socialLabel(link)}
                     whileHover={{ scale: 1.12, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     className="w-11 h-11 rounded-full glass-soft flex items-center justify-center hover:bg-black/[0.03] transition-colors"
                   >
-                    <Icon className="text-lg" style={{ color }} />
+                    <SocialIcon
+                      platform={link.platform}
+                      className="text-lg"
+                      style={{ color: platformMeta(link.platform)?.color || "#6e6e73" }}
+                    />
                   </motion.a>
                 ))}
               </motion.div>
