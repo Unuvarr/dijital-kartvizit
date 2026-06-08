@@ -32,6 +32,24 @@ body {
   letter-spacing: -0.01em;
 }
 
+/* Mobilde dokunma vurgusunu (mavi parlama) kaldir */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Kaydirirken yanlislikla metin secilip mavi vurgu olmasin (app hissi).
+   Inputlar ve secilebilir alanlar haric. */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+}
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 /* ============================================================
    PREMIUM MINIMAL (ACIK) - imza vurgulu, sade, ferah
    ============================================================ */
