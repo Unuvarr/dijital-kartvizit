@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { getCurrentUserId } from "@/lib/auth";
-import { fetchViewSeries } from "@/lib/analytics";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
 import {
   FaUserPlus,
@@ -30,7 +29,6 @@ interface LeadRow {
 
 interface CardSummary {
   card: Profile;
-  views7d: number;
   leadCount: number;
 }
 
@@ -57,14 +55,12 @@ export default function DashboardPage() {
 
       const summaries: CardSummary[] = await Promise.all(
         list.map(async (card) => {
-          const series = await fetchViewSeries(card.id, 7);
           const { count: leadCount } = await supabase
             .from("card_leads")
             .select("*", { count: "exact", head: true })
             .eq("card_id", card.id);
           return {
             card,
-            views7d: series.length,
             leadCount: leadCount || 0,
           };
         })
@@ -130,7 +126,7 @@ export default function DashboardPage() {
           variants={itemVariants}
           className="grid gap-3 sm:grid-cols-2"
         >
-          {cards.map(({ card, views7d, leadCount }) => (
+          {cards.map(({ card, leadCount }) => (
             <motion.div
               key={card.id}
               variants={cardVariants}
@@ -164,18 +160,12 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 mb-3 text-center">
+                <div className="grid grid-cols-2 gap-2 mb-3 text-center">
                   <div className="glass-soft rounded-lg p-2">
                     <p className="text-[10px] text-black/45 uppercase tracking-wider">
-                      Toplam
+                      Toplam Okutulma
                     </p>
                     <p className="text-lg font-semibold">{card.view_count ?? 0}</p>
-                  </div>
-                  <div className="glass-soft rounded-lg p-2">
-                    <p className="text-[10px] text-black/45 uppercase tracking-wider">
-                      7 gün
-                    </p>
-                    <p className="text-lg font-semibold">{views7d}</p>
                   </div>
                   <div className="glass-soft rounded-lg p-2">
                     <p className="text-[10px] text-black/45 uppercase tracking-wider">
