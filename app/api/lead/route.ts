@@ -72,21 +72,7 @@ export async function POST(req: Request) {
   });
 
   if (error) {
-    // GECICI TESHIS: gercek hatayi don (sonra kaldirilacak)
-    return Response.json(
-      {
-        error: "Kaydedilemedi",
-        debug: {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint,
-          hasKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-          keyLen: (process.env.SUPABASE_SERVICE_ROLE_KEY || "").length,
-        },
-      },
-      { status: 500 }
-    );
+    return Response.json({ error: "Kaydedilemedi" }, { status: 500 });
   }
   return Response.json({ ok: true });
 }
