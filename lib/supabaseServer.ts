@@ -13,6 +13,18 @@ function getServerClient() {
   );
 }
 
+/**
+ * Service-role client: RLS'i bypass eder. SADECE sunucu (API route) icinde,
+ * dogrulama + rate-limit'ten sonra kullanilir. Asla client'a sizdirma.
+ */
+export function getServiceClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
+  );
+}
+
 /** Slug'a gore karti server'da cek. Bulunamazsa null. */
 export async function fetchCardBySlug(slug: string): Promise<Profile | null> {
   const supabase = getServerClient();

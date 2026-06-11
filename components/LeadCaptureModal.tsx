@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTimes, FaUserPlus, FaCheck } from "react-icons/fa";
-import { supabase } from "@/lib/supabaseClient";
 
 interface LeadCaptureModalProps {
   open: boolean;
@@ -23,6 +22,7 @@ export default function LeadCaptureModal({
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
   const [message, setMessage] = useState("");
+  const [hp, setHp] = useState(""); // honeypot (bot tuzagi)
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +33,7 @@ export default function LeadCaptureModal({
     setEmail("");
     setCompany("");
     setMessage("");
+    setHp("");
     setDone(false);
     setError(null);
   };
@@ -49,20 +50,31 @@ export default function LeadCaptureModal({
       return;
     }
     setSending(true);
-    const { error: insErr } = await supabase.from("card_leads").insert({
-      card_id: cardId,
-      name: name.trim(),
-      phone: phone.trim() || null,
-      email: email.trim() || null,
-      company: company.trim() || null,
-      message: message.trim() || null,
-    });
-    setSending(false);
-    if (insErr) {
-      setError(insErr.message);
-      return;
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          card_id: cardId,
+          name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim(),
+          company: company.trim(),
+          message: message.trim(),
+          website: hp, // honeypot
+        }),
+      });
+      if (!res.ok) {
+        const b = await res.json().catch(() => ({}));
+        setError(b?.error || "Gönderilemedi");
+        return;
+      }
+      setDone(true);
+    } catch {
+      setError("Bağlantı hatası");
+    } finally {
+      setSending(false);
     }
-    setDone(true);
   };
 
   const handleClose = () => {
@@ -128,6 +140,17 @@ export default function LeadCaptureModal({
                   )}
 
                   <form onSubmit={submit} className="space-y-3">
+                    {/* Honeypot: insanlar gormez, botlar doldurur */}
+                    <input
+                      type="text"
+                      name="website"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={hp}
+                      onChange={(e) => setHp(e.target.value)}
+                      className="hidden"
+                      aria-hidden="true"
+                    />
                     <input
                       className="input-neon"
                       placeholder="Ad Soyad *"
