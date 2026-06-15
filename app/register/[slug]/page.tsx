@@ -517,6 +517,18 @@ export default function RegisterPage({
               >
                 {submitting ? "Kaydediliyor..." : "✓ Kartımı Kaydet"}
               </motion.button>
+              <p className="text-[11px] text-black/40 text-center leading-snug">
+                Kaydederek{" "}
+                <a
+                  href="/gizlilik"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-black/60"
+                >
+                  Gizlilik Politikası
+                </a>
+                ’nı kabul etmiş olursun.
+              </p>
             </form>
 
             <p className="mt-5 text-center text-xs text-black/40">

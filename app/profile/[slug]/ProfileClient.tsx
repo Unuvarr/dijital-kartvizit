@@ -431,6 +431,17 @@ export default function ProfileClient({
             )}
           </div>
         </motion.div>
+
+        <div className="text-center mt-4">
+          <a
+            href="/gizlilik"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] text-black/30 hover:text-black/55 transition-colors"
+          >
+            Gizlilik
+          </a>
+        </div>
       </motion.div>
 
       {/* Avatar Lightbox */}
