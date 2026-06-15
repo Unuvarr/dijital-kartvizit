@@ -194,6 +194,18 @@ export default function LeadCaptureModal({
                     >
                       {sending ? "Gönderiliyor..." : "Gönder"}
                     </motion.button>
+                    <p className="text-[10px] text-black/40 text-center leading-snug">
+                      Göndererek bilgilerinin kart sahibiyle paylaşılmasını ve{" "}
+                      <a
+                        href="/gizlilik"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-black/60"
+                      >
+                        Gizlilik Politikası
+                      </a>
+                      ’nı kabul edersin.
+                    </p>
                   </form>
                 </>
               )}
