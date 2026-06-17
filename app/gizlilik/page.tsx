@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import BackLink from "@/components/BackLink";
 
 export const metadata: Metadata = {
   title: "Gizlilik ve KVKK Aydınlatma Metni – Rity Card",
@@ -107,12 +107,7 @@ export default function GizlilikPage() {
           </div>
 
           <div className="mt-8">
-            <Link
-              href="/"
-              className="text-xs text-black/45 hover:text-black/70 transition-colors"
-            >
-              ← Ana sayfa
-            </Link>
+            <BackLink />
           </div>
         </div>
       </div>
