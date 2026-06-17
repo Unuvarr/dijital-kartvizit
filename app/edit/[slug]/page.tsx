@@ -12,6 +12,7 @@ import { THEMES, type ThemeKey, themeStyle } from "@/lib/types";
 import AvatarCropper from "@/components/AvatarCropper";
 import SocialLinksEditor from "@/components/SocialLinksEditor";
 import type { SocialLink } from "@/lib/types";
+import { sanitizeField, validateContactForm } from "@/lib/formSanitize";
 
 interface FormData {
   first_name: string;
@@ -155,7 +156,7 @@ export default function EditPage({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: sanitizeField(name, value),
     }));
   };
 
@@ -197,20 +198,9 @@ export default function EditPage({
     e.preventDefault();
     setError(null);
 
-    if (!formData.first_name.trim()) {
-      setError("Ad boş bırakılamaz");
-      return;
-    }
-    if (!formData.last_name.trim()) {
-      setError("Soyad boş bırakılamaz");
-      return;
-    }
-    if (!formData.phone.trim()) {
-      setError("Telefon boş bırakılamaz");
-      return;
-    }
-    if (!formData.email.trim()) {
-      setError("E-posta boş bırakılamaz");
+    const vErr = validateContactForm(formData);
+    if (vErr) {
+      setError(vErr);
       return;
     }
 
