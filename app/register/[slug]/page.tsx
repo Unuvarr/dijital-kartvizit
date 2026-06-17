@@ -44,8 +44,14 @@ function sanitizeField(name: string, value: string): string {
     case "title":
     case "company":
       return value.slice(0, 40);
+    case "email":
+      return value.replace(/\s/g, "").slice(0, 120);
+    case "website":
+      return value.slice(0, 200);
+    case "address":
+      return value.slice(0, 300);
     default:
-      return value;
+      return value.slice(0, 200);
   }
 }
 

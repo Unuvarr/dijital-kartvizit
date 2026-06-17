@@ -65,7 +65,10 @@ export default function SocialLinksEditor({
               <input
                 type="text"
                 value={link.label || ""}
-                onChange={(e) => update(i, { label: e.target.value })}
+                onChange={(e) =>
+                  update(i, { label: e.target.value.slice(0, 30) })
+                }
+                maxLength={30}
                 placeholder="Görünecek ad (örn. Sahibinden)"
                 className="input-neon py-2"
               />
@@ -79,7 +82,10 @@ export default function SocialLinksEditor({
                 <input
                   type="text"
                   value={link.value}
-                  onChange={(e) => update(i, { value: e.target.value })}
+                  onChange={(e) =>
+                    update(i, { value: e.target.value.slice(0, 120) })
+                  }
+                  maxLength={120}
                   placeholder="kullanıcı adı"
                   className="flex-1 min-w-0 px-3 py-2 bg-transparent outline-none text-sm"
                 />
@@ -88,7 +94,10 @@ export default function SocialLinksEditor({
               <input
                 type="text"
                 value={link.value}
-                onChange={(e) => update(i, { value: e.target.value })}
+                onChange={(e) =>
+                  update(i, { value: e.target.value.slice(0, 120) })
+                }
+                maxLength={120}
                 placeholder={meta?.placeholder || "https://..."}
                 className="input-neon py-2"
               />
