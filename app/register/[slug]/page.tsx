@@ -50,6 +50,7 @@ export default function RegisterPage({
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [coverCropSrc, setCoverCropSrc] = useState<string | null>(null);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [step, setStep] = useState<1 | 2>(1);
 
   const [formData, setFormData] = useState<FormData>({
     first_name: "",
@@ -137,14 +138,26 @@ export default function RegisterPage({
     setCoverCropSrc(null);
   };
 
+  // Adım 1'den 2'ye: zorunlu alanları doğrula
+  const goToStep2 = () => {
+    const vErr = validateContactForm(formData);
+    if (vErr) {
+      setError(vErr);
+      return;
+    }
+    setError(null);
+    setStep(2);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Validasyon
+    // Validasyon (her ihtimale karşı son kontrol)
     const vErr = validateContactForm(formData);
     if (vErr) {
       setError(vErr);
+      setStep(1);
       return;
     }
 
@@ -300,9 +313,23 @@ export default function RegisterPage({
         animate="show"
         className="max-w-md mx-auto"
       >
-        <motion.div variants={itemVariants} className="text-center mb-8">
+        <motion.div variants={itemVariants} className="text-center mb-6">
           <h1 className="text-4xl font-bold neon-text mb-2">Kartını Oluştur</h1>
-          <p className="text-black/55">Bilgilerini gir ve dünyaya paylaş</p>
+          <p className="text-black/55">
+            {step === 1 ? "Önce temel bilgiler — 30 saniye" : "Dilediğin kadar zenginleştir"}
+          </p>
+        </motion.div>
+
+        {/* Adım göstergesi */}
+        <motion.div variants={itemVariants} className="flex items-center justify-center gap-2 mb-5">
+          {[1, 2].map((s) => (
+            <span
+              key={s}
+              className={`h-1.5 rounded-full transition-all ${
+                step === s ? "w-8 bg-[#4f46e5]" : "w-2 bg-black/15"
+              }`}
+            />
+          ))}
         </motion.div>
 
         <motion.div variants={cardVariants} className="neon-border">
@@ -318,208 +345,246 @@ export default function RegisterPage({
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Profil Fotografi */}
-              <div className="flex flex-col items-center pb-6 border-b border-black/[0.06]">
-                <label className="cursor-pointer group">
-                  <div className="relative w-28 h-28">
-                    <div className="absolute -inset-1 rounded-full bg-[linear-gradient(135deg,#4f46e5,#7c3aed)] opacity-30 blur-[2px] group-hover:opacity-60 transition" />
-                    <div className="relative w-28 h-28 rounded-full overflow-hidden bg-black/[0.03] border border-black/10 flex items-center justify-center">
-                      {avatarPreview ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={avatarPreview}
-                          alt="Önizleme"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-3xl text-black/30">＋</span>
-                      )}
-                    </div>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="hidden"
-                  />
-                </label>
-                <p className="text-xs text-black/40 mt-3">
-                  Fotoğraf / Logo (isteğe bağlı)
-                </p>
-              </div>
-
-              {/* Kapak Fotografi (opsiyonel) */}
-              <div className="pb-6 border-b border-black/[0.06]">
-                <label className="cursor-pointer block group">
-                  <div className="relative w-full aspect-[3/1] rounded-2xl overflow-hidden bg-black/[0.03] border border-black/10 flex items-center justify-center">
-                    {coverPreview ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={coverPreview}
-                        alt="Kapak önizleme"
-                        className="w-full h-full object-cover"
+              {/* ============ ADIM 1: ZORUNLU ============ */}
+              {step === 1 && (
+                <>
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
+                      Temel Bilgiler
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field
+                        label="Ad *"
+                        name="first_name"
+                        value={formData.first_name}
+                        onChange={handleChange}
+                        placeholder="Ad"
+                        required
                       />
-                    ) : (
-                      <span className="text-sm text-black/40">
-                        ＋ Kapak fotoğrafı ekle (isteğe bağlı)
-                      </span>
+                      <Field
+                        label="Soyad *"
+                        name="last_name"
+                        value={formData.last_name}
+                        onChange={handleChange}
+                        placeholder="Soyad"
+                        required
+                      />
+                    </div>
+                    <Field
+                      label="Telefon *"
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="0555..."
+                      required
+                    />
+                    <Field
+                      label="E-posta *"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="button"
+                    onClick={goToStep2}
+                    className="btn-neon w-full py-3.5 rounded-xl font-semibold text-white"
+                  >
+                    Devam Et →
+                  </motion.button>
+                  <p className="text-[11px] text-black/40 text-center">
+                    Sadece bu 4 alan zorunlu. Fotoğraf, sosyal medya ve gerisini
+                    sonraki adımda (ya da hiç) ekleyebilirsin.
+                  </p>
+                </>
+              )}
+
+              {/* ============ ADIM 2: OPSİYONEL ============ */}
+              {step === 2 && (
+                <>
+                  {/* Profil Fotografi */}
+                  <div className="flex flex-col items-center pb-6 border-b border-black/[0.06]">
+                    <label className="cursor-pointer group">
+                      <div className="relative w-28 h-28">
+                        <div className="absolute -inset-1 rounded-full bg-[linear-gradient(135deg,#4f46e5,#7c3aed)] opacity-30 blur-[2px] group-hover:opacity-60 transition" />
+                        <div className="relative w-28 h-28 rounded-full overflow-hidden bg-black/[0.03] border border-black/10 flex items-center justify-center">
+                          {avatarPreview ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={avatarPreview}
+                              alt="Önizleme"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-3xl text-black/30">＋</span>
+                          )}
+                        </div>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="hidden"
+                      />
+                    </label>
+                    <p className="text-xs text-black/40 mt-3">
+                      Fotoğraf / Logo (isteğe bağlı)
+                    </p>
+                  </div>
+
+                  {/* Kapak Fotografi */}
+                  <div className="pb-6 border-b border-black/[0.06]">
+                    <label className="cursor-pointer block group">
+                      <div className="relative w-full aspect-[3/1] rounded-2xl overflow-hidden bg-black/[0.03] border border-black/10 flex items-center justify-center">
+                        {coverPreview ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={coverPreview}
+                            alt="Kapak önizleme"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-sm text-black/40">
+                            ＋ Kapak fotoğrafı ekle (isteğe bağlı)
+                          </span>
+                        )}
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleCoverChange}
+                        className="hidden"
+                      />
+                    </label>
+                    {coverPreview && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCoverFile(null);
+                          setCoverPreview(null);
+                        }}
+                        className="mt-2 text-xs text-red-600 hover:text-red-700 transition-colors"
+                      >
+                        Kapağı kaldır
+                      </button>
                     )}
                   </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleCoverChange}
-                    className="hidden"
-                  />
-                </label>
-                {coverPreview && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCoverFile(null);
-                      setCoverPreview(null);
-                    }}
-                    className="mt-2 text-xs text-red-600 hover:text-red-700 transition-colors"
-                  >
-                    Kapağı kaldır
-                  </button>
-                )}
-              </div>
 
-              {/* Temel Bilgiler */}
-              <div className="space-y-4 pb-6 border-b border-black/[0.06]">
-                <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
-                  Temel Bilgiler
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <Field
-                    label="Ad *"
-                    name="first_name"
-                    value={formData.first_name}
-                    onChange={handleChange}
-                    placeholder="Ad"
-                    required
-                  />
-                  <Field
-                    label="Soyad *"
-                    name="last_name"
-                    value={formData.last_name}
-                    onChange={handleChange}
-                    placeholder="Soyad"
-                    required
-                  />
-                </div>
-                <Field
-                  label="Ünvan"
-                  name="title"
-                  value={formData.title || ""}
-                  onChange={handleChange}
-                  placeholder="Örn. Pazarlama Müdürü"
-                />
-                <Field
-                  label="Şirket"
-                  name="company"
-                  value={formData.company || ""}
-                  onChange={handleChange}
-                  placeholder="Örn. ABC A.Ş."
-                />
-              </div>
+                  {/* Ünvan / Şirket / WhatsApp */}
+                  <div className="space-y-4 pb-6 border-b border-black/[0.06]">
+                    <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
+                      İş & İletişim
+                    </h3>
+                    <Field
+                      label="Ünvan"
+                      name="title"
+                      value={formData.title || ""}
+                      onChange={handleChange}
+                      placeholder="Örn. Pazarlama Müdürü"
+                    />
+                    <Field
+                      label="Şirket"
+                      name="company"
+                      value={formData.company || ""}
+                      onChange={handleChange}
+                      placeholder="Örn. ABC A.Ş."
+                    />
+                    <Field
+                      label="WhatsApp"
+                      name="whatsapp"
+                      type="tel"
+                      value={formData.whatsapp || ""}
+                      onChange={handleChange}
+                      placeholder="(İsteğe bağlı)"
+                    />
+                  </div>
 
-              {/* İletişim */}
-              <div className="space-y-4 pb-6 border-b border-black/[0.06]">
-                <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
-                  İletişim
-                </h3>
-                <Field
-                  label="Telefon *"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="0555..."
-                  required
-                />
-                <Field
-                  label="E-posta *"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-                <Field
-                  label="WhatsApp"
-                  name="whatsapp"
-                  type="tel"
-                  value={formData.whatsapp || ""}
-                  onChange={handleChange}
-                  placeholder="(İsteğe bağlı)"
-                />
-              </div>
+                  {/* Sosyal Medya & Bağlantılar */}
+                  <div className="space-y-4 pb-6 border-b border-black/[0.06]">
+                    <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
+                      Sosyal Medya & Bağlantılar
+                    </h3>
+                    <SocialLinksEditor
+                      value={socialLinks}
+                      onChange={setSocialLinks}
+                    />
+                  </div>
 
-              {/* Sosyal Medya & Bağlantılar */}
-              <div className="space-y-4 pb-6 border-b border-black/[0.06]">
-                <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
-                  Sosyal Medya & Bağlantılar
-                </h3>
-                <SocialLinksEditor value={socialLinks} onChange={setSocialLinks} />
-              </div>
+                  {/* Ek Bilgiler */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
+                      Ek Bilgiler
+                    </h3>
+                    <Field
+                      label="Web Sitesi"
+                      name="website"
+                      type="url"
+                      value={formData.website || ""}
+                      onChange={handleChange}
+                      placeholder="https://..."
+                    />
+                    <Field
+                      label="IBAN"
+                      name="iban"
+                      value={formData.iban || ""}
+                      onChange={handleChange}
+                    />
+                    <div>
+                      <label className="block text-sm font-medium text-black/70 mb-1.5">
+                        Adres
+                      </label>
+                      <textarea
+                        name="address"
+                        value={formData.address || ""}
+                        onChange={handleChange}
+                        rows={2}
+                        className="input-neon resize-none"
+                      />
+                    </div>
+                  </div>
 
-              {/* Ek Bilgiler */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-black/70 tracking-wide uppercase text-xs">
-                  Ek Bilgiler
-                </h3>
-                <Field
-                  label="Web Sitesi"
-                  name="website"
-                  type="url"
-                  value={formData.website || ""}
-                  onChange={handleChange}
-                  placeholder="https://..."
-                />
-                <Field
-                  label="IBAN"
-                  name="iban"
-                  value={formData.iban || ""}
-                  onChange={handleChange}
-                />
-                <div>
-                  <label className="block text-sm font-medium text-black/70 mb-1.5">
-                    Adres
-                  </label>
-                  <textarea
-                    name="address"
-                    value={formData.address || ""}
-                    onChange={handleChange}
-                    rows={2}
-                    className="input-neon resize-none"
-                  />
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={submitting}
-                className="btn-neon w-full py-3.5 rounded-xl font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed mt-2"
-              >
-                {submitting ? "Kaydediliyor..." : "✓ Kartımı Kaydet"}
-              </motion.button>
-              <p className="text-[11px] text-black/40 text-center leading-snug">
-                Kaydederek{" "}
-                <a
-                  href="/gizlilik"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-black/60"
-                >
-                  Gizlilik Politikası
-                </a>
-                ’nı kabul etmiş olursun.
-              </p>
+                  {/* Geri + Kaydet */}
+                  <div className="flex gap-3 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setError(null);
+                        setStep(1);
+                      }}
+                      className="glass-soft px-5 py-3.5 rounded-xl text-sm font-semibold text-black/70 hover:text-black hover:bg-black/[0.03] transition-colors"
+                    >
+                      ← Geri
+                    </button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="submit"
+                      disabled={submitting}
+                      className="btn-neon flex-1 py-3.5 rounded-xl font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {submitting ? "Kaydediliyor..." : "✓ Kartımı Oluştur"}
+                    </motion.button>
+                  </div>
+                  <p className="text-[11px] text-black/40 text-center leading-snug">
+                    Oluşturarak{" "}
+                    <a
+                      href="/gizlilik"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:text-black/60"
+                    >
+                      Gizlilik Politikası
+                    </a>
+                    ’nı kabul etmiş olursun.
+                  </p>
+                </>
+              )}
             </form>
 
             <p className="mt-5 text-center text-xs text-black/40">

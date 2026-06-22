@@ -619,35 +619,41 @@ export default function EditPage({
             </div>
           </motion.div>
 
-          {/* Buttons */}
-          <motion.div variants={itemVariants} className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => setFormData(originalData || formData)}
-              disabled={!hasChanges}
-              className="glass-soft flex-1 px-6 py-4 rounded-xl text-black/70 hover:text-black font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              ↻ Sıfırla
-            </button>
-            <motion.button
-              whileHover={hasChanges ? { scale: 1.02 } : undefined}
-              whileTap={hasChanges ? { scale: 0.98 } : undefined}
-              type="submit"
-              disabled={saving || !hasChanges}
-              className="btn-neon flex-1 px-6 py-4 rounded-xl text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {saving ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Kaydediliyor...
-                </>
-              ) : (
-                <>
-                  <FaSave /> Değişiklikleri Kaydet
-                </>
-              )}
-            </motion.button>
-          </motion.div>
+          {/* Yapışkan Kaydet çubuğu */}
+          <div className="sticky bottom-4 z-30 pt-2">
+            <div className="glass rounded-2xl p-2 flex gap-2 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)]">
+              <button
+                type="button"
+                onClick={() => setFormData(originalData || formData)}
+                disabled={!hasChanges}
+                className="glass-soft px-5 py-3.5 rounded-xl text-black/70 hover:text-black font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                ↻ Sıfırla
+              </button>
+              <motion.button
+                whileHover={hasChanges ? { scale: 1.02 } : undefined}
+                whileTap={hasChanges ? { scale: 0.98 } : undefined}
+                type="submit"
+                disabled={saving || !hasChanges}
+                className="btn-neon flex-1 px-6 py-3.5 rounded-xl text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {saving ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Kaydediliyor...
+                  </>
+                ) : hasChanges ? (
+                  <>
+                    <FaSave /> Değişiklikleri Kaydet
+                  </>
+                ) : (
+                  <>
+                    <FaCheck /> Güncel
+                  </>
+                )}
+              </motion.button>
+            </div>
+          </div>
         </form>
 
         {/* Info Box */}

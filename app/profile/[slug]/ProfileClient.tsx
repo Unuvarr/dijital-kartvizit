@@ -294,7 +294,7 @@ export default function ProfileClient({
             </motion.div>
 
             {/* Birincil aksiyon: vCard */}
-            <motion.div variants={itemVariants} className="px-8 pb-3">
+            <motion.div variants={itemVariants} className="px-8 pb-4">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -306,48 +306,9 @@ export default function ProfileClient({
               </motion.button>
             </motion.div>
 
-            {/* Lead capture */}
-            <motion.div variants={itemVariants} className="px-8 pb-4">
-              <button
-                onClick={() => setShowLead(true)}
-                className="w-full glass-soft rounded-xl py-2.5 text-xs font-medium text-black/70 hover:text-black hover:bg-black/[0.03] transition-colors flex items-center justify-center gap-2"
-              >
-                <FaUserPlus />
-                <span>Sen de bilgini bırak</span>
-              </button>
-            </motion.div>
-
-            {/* Sosyal */}
-            {socials.length > 0 && (
-              <motion.div
-                variants={itemVariants}
-                className="px-8 pb-5 flex justify-center gap-3"
-              >
-                {socials.map((link, i) => (
-                  <motion.a
-                    key={`${link.platform}-${i}`}
-                    href={buildSocialHref(link)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={socialLabel(link)}
-                    title={socialLabel(link)}
-                    whileHover={{ scale: 1.12, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-11 h-11 rounded-full glass-soft flex items-center justify-center hover:bg-black/[0.03] transition-colors"
-                  >
-                    <SocialIcon
-                      platform={link.platform}
-                      className="text-lg"
-                      style={{ color: platformMeta(link.platform)?.color || "#6e6e73" }}
-                    />
-                  </motion.a>
-                ))}
-              </motion.div>
-            )}
-
-            {/* Hızlı iletişim */}
+            {/* Hızlı iletişim — asıl niyet, en üstte */}
             {quickActions.length > 0 && (
-              <motion.div variants={itemVariants} className="px-8 pb-6">
+              <motion.div variants={itemVariants} className="px-8 pb-5">
                 <div
                   className="grid gap-3"
                   style={{
@@ -373,7 +334,7 @@ export default function ProfileClient({
             )}
 
             {/* Detay */}
-            <div className="px-6 pb-6 space-y-2.5">
+            <div className="px-6 pb-5 space-y-2.5">
               {profile.website && (
                 <ContactRow
                   icon={
@@ -412,6 +373,45 @@ export default function ProfileClient({
                 />
               )}
             </div>
+
+            {/* Sosyal */}
+            {socials.length > 0 && (
+              <motion.div
+                variants={itemVariants}
+                className="px-8 pb-5 flex justify-center gap-3"
+              >
+                {socials.map((link, i) => (
+                  <motion.a
+                    key={`${link.platform}-${i}`}
+                    href={buildSocialHref(link)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={socialLabel(link)}
+                    title={socialLabel(link)}
+                    whileHover={{ scale: 1.12, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-11 h-11 rounded-full glass-soft flex items-center justify-center hover:bg-black/[0.03] transition-colors"
+                  >
+                    <SocialIcon
+                      platform={link.platform}
+                      className="text-lg"
+                      style={{ color: platformMeta(link.platform)?.color || "#6e6e73" }}
+                    />
+                  </motion.a>
+                ))}
+              </motion.div>
+            )}
+
+            {/* Lead capture — ikincil, aşağıda */}
+            <motion.div variants={itemVariants} className="px-8 pb-5">
+              <button
+                onClick={() => setShowLead(true)}
+                className="w-full glass-soft rounded-xl py-2.5 text-xs font-medium text-black/70 hover:text-black hover:bg-black/[0.03] transition-colors flex items-center justify-center gap-2"
+              >
+                <FaUserPlus />
+                <span>Sen de bilgini bırak</span>
+              </button>
+            </motion.div>
 
             {isOwner && viewCount != null && (
               <div className="px-6 pb-4 -mt-1 text-center text-xs text-black/40">
