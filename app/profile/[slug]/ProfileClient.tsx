@@ -293,6 +293,34 @@ export default function ProfileClient({
               )}
             </motion.div>
 
+            {/* Sosyal — başlığın altında, kimlikle birlikte */}
+            {socials.length > 0 && (
+              <motion.div
+                variants={itemVariants}
+                className="px-8 pb-5 flex justify-center gap-3"
+              >
+                {socials.map((link, i) => (
+                  <motion.a
+                    key={`${link.platform}-${i}`}
+                    href={buildSocialHref(link)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={socialLabel(link)}
+                    title={socialLabel(link)}
+                    whileHover={{ scale: 1.12, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-11 h-11 rounded-full glass-soft flex items-center justify-center hover:bg-black/[0.03] transition-colors"
+                  >
+                    <SocialIcon
+                      platform={link.platform}
+                      className="text-lg"
+                      style={{ color: platformMeta(link.platform)?.color || "#6e6e73" }}
+                    />
+                  </motion.a>
+                ))}
+              </motion.div>
+            )}
+
             {/* Birincil aksiyon: vCard */}
             <motion.div variants={itemVariants} className="px-8 pb-4">
               <motion.button
@@ -373,34 +401,6 @@ export default function ProfileClient({
                 />
               )}
             </div>
-
-            {/* Sosyal */}
-            {socials.length > 0 && (
-              <motion.div
-                variants={itemVariants}
-                className="px-8 pb-5 flex justify-center gap-3"
-              >
-                {socials.map((link, i) => (
-                  <motion.a
-                    key={`${link.platform}-${i}`}
-                    href={buildSocialHref(link)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={socialLabel(link)}
-                    title={socialLabel(link)}
-                    whileHover={{ scale: 1.12, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-11 h-11 rounded-full glass-soft flex items-center justify-center hover:bg-black/[0.03] transition-colors"
-                  >
-                    <SocialIcon
-                      platform={link.platform}
-                      className="text-lg"
-                      style={{ color: platformMeta(link.platform)?.color || "#6e6e73" }}
-                    />
-                  </motion.a>
-                ))}
-              </motion.div>
-            )}
 
             {/* Lead capture — ikincil, aşağıda */}
             <motion.div variants={itemVariants} className="px-8 pb-5">
