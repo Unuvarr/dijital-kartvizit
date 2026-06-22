@@ -290,8 +290,8 @@ export default function RegisterPage({
         onComplete={handleCoverCropped}
         aspect={3}
         cropShape="rect"
-        outW={1200}
-        outH={400}
+        outW={1000}
+        outH={333}
         title="Kapağı ortala"
       />
       <motion.div

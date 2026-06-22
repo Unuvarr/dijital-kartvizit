@@ -17,8 +17,8 @@ export default function AvatarCropper({
   onComplete,
   aspect = 1,
   cropShape = "round",
-  outW = 512,
-  outH = 512,
+  outW = 400,
+  outH = 400,
   title = "Fotoğrafı ortala",
 }: {
   imageSrc: string | null;
@@ -158,7 +158,7 @@ async function cropToFile(
     canvas.toBlob(
       (b) => (b ? resolve(b) : reject(new Error("Kırpma başarısız"))),
       "image/jpeg",
-      0.9
+      0.82
     )
   );
 
