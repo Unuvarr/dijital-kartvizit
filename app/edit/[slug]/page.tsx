@@ -73,6 +73,12 @@ export default function EditPage({
   const [theme, setTheme] = useState<ThemeKey>("indigo");
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [originalSocial, setOriginalSocial] = useState<string>("[]");
+  // Kayittan yeni gelindiyse karsilama bandi goster
+  const [isNew] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("new") === "1"
+  );
   const [originalTheme, setOriginalTheme] = useState<ThemeKey>("indigo");
 
   // Veriyi yükle
@@ -389,8 +395,26 @@ export default function EditPage({
           >
             <FaArrowLeft /> Geri
           </button>
-          <h1 className="text-3xl font-bold neon-text">Kartını Düzenle</h1>
+          <h1 className="text-3xl font-bold neon-text">
+            {isNew ? "Kartını Tamamla" : "Kartını Düzenle"}
+          </h1>
         </motion.div>
+
+        {/* Kayittan yeni gelindiyse karsilama */}
+        {isNew && (
+          <motion.div
+            variants={itemVariants}
+            className="mb-6 p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.07]"
+          >
+            <p className="text-sm font-semibold text-emerald-700 mb-0.5">
+              🎉 Kartın oluştu ve yayında!
+            </p>
+            <p className="text-xs text-emerald-700/80">
+              Fotoğraf, sosyal medya ve tema ekleyerek tamamla. İstersen şimdi,
+              istersen sonra — değişiklikleri kaydetmeyi unutma.
+            </p>
+          </motion.div>
+        )}
 
         {/* Success / Error */}
         <AnimatePresence>
