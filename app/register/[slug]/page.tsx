@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
-import { ensureAnonymousSession, linkRecoveryEmail } from "@/lib/auth";
+import { ensureAnonymousSession } from "@/lib/auth";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
 import { sanitizeField, validateContactForm } from "@/lib/formSanitize";
@@ -112,12 +112,8 @@ export default function RegisterPage({
 
       if (updateError) throw new Error(updateError.message);
 
-      // Kurtarma icin e-postayi hesaba bagla (basarisiz olsa da kayit gecerli)
-      try {
-        await linkRecoveryEmail(email);
-      } catch {
-        // sessizce gec
-      }
+      // Not: E-posta dogrulama maili GONDERILMEZ. Kurtarma owner_email kolonu
+      // uzerinden calisir (kart kaybinda /recover ile e-postayla geri alinir).
 
       setSuccess(true);
       // Duzenleme ekranina yonlendir: foto/sosyal/tema orada zenginlestirilir
