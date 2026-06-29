@@ -17,7 +17,7 @@ export default function Aurora() {
           left: "50%",
           marginLeft: -360,
           background:
-            "radial-gradient(circle, rgba(99,102,241,0.16) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(20,20,22,0.06) 0%, transparent 70%)",
           animation: "signature-drift 32s ease-in-out infinite",
         }}
       />

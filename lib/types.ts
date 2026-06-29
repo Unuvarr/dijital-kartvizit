@@ -30,12 +30,18 @@ export interface SocialLink {
   label?: string; // sadece "custom" icin gosterilecek ad
 }
 
-export type ThemeKey = "indigo" | "emerald" | "rose" | "amber" | "slate";
+export type ThemeKey = "mono" | "indigo" | "emerald" | "rose" | "amber" | "slate";
 
 export const THEMES: Record<
   ThemeKey,
   { name: string; accent: string; accent2: string; soft: string }
 > = {
+  mono: {
+    name: "Siyah-Beyaz",
+    accent: "#141416",
+    accent2: "#3a3a3d",
+    soft: "rgba(20, 20, 22, 0.10)",
+  },
   indigo: {
     name: "Indigo",
     accent: "#4f46e5",
@@ -69,7 +75,7 @@ export const THEMES: Record<
 };
 
 export function themeStyle(key?: ThemeKey | null): React.CSSProperties {
-  const t = THEMES[key || "indigo"];
+  const t = THEMES[key || "mono"];
   return {
     ["--accent" as string]: t.accent,
     ["--accent-2" as string]: t.accent2,

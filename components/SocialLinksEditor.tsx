@@ -75,7 +75,7 @@ export default function SocialLinksEditor({
             )}
 
             {prefix && !pastedFullUrl ? (
-              <div className="flex items-stretch rounded-[0.85rem] border border-black/[0.14] bg-white overflow-hidden focus-within:border-[#4f46e5] focus-within:ring-2 focus-within:ring-[#4f46e5]/15 transition">
+              <div className="flex items-stretch rounded-[0.85rem] border border-black/[0.14] bg-white overflow-hidden focus-within:border-[#141416] focus-within:ring-2 focus-within:ring-[#141416]/15 transition">
                 <span className="px-2.5 flex items-center text-xs text-black/45 bg-black/[0.03] border-r border-black/[0.06] whitespace-nowrap">
                   {prefix}
                 </span>

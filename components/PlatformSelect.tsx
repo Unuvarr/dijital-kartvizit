@@ -94,7 +94,7 @@ export default function PlatformSelect({
                       <span className="text-black/40"> (eklendi)</span>
                     )}
                   </span>
-                  {active && <FaCheck className="text-[10px] text-[#4f46e5]" />}
+                  {active && <FaCheck className="text-[10px] text-[#141416]" />}
                 </button>
               );
             })}

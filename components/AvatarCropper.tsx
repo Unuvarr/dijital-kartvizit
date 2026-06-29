@@ -97,7 +97,7 @@ export default function AvatarCropper({
                   step={0.01}
                   value={zoom}
                   onChange={(e) => setZoom(Number(e.target.value))}
-                  className="flex-1 accent-[#4f46e5]"
+                  className="flex-1 accent-[#141416]"
                   aria-label="Yakınlaştır"
                 />
               </div>

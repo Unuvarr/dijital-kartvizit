@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
       card.website && { header: "Web", body: card.website },
     ].filter(Boolean),
     barcode: { type: "QR_CODE", value: `${origin}/${slug}` },
-    hexBackgroundColor: "#4f46e5",
+    hexBackgroundColor: "#141416",
   };
 
   if (!issuerId || !classId || !saEmail || !saKey) {

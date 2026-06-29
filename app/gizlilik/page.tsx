@@ -94,7 +94,7 @@ export default function GizlilikPage() {
               Her türlü soru ve KVKK talebi için:{" "}
               <a
                 href={`mailto:${CONTACT_EMAIL}`}
-                className="text-[#4f46e5] font-medium hover:underline"
+                className="text-[#141416] font-medium hover:underline"
               >
                 {CONTACT_EMAIL}
               </a>

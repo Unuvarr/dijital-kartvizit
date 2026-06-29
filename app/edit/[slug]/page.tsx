@@ -70,7 +70,7 @@ export default function EditPage({
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [coverCropSrc, setCoverCropSrc] = useState<string | null>(null);
-  const [theme, setTheme] = useState<ThemeKey>("indigo");
+  const [theme, setTheme] = useState<ThemeKey>("mono");
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [originalSocial, setOriginalSocial] = useState<string>("[]");
   // Kayittan yeni gelindiyse karsilama bandi goster
@@ -79,7 +79,7 @@ export default function EditPage({
       typeof window !== "undefined" &&
       new URLSearchParams(window.location.search).get("new") === "1"
   );
-  const [originalTheme, setOriginalTheme] = useState<ThemeKey>("indigo");
+  const [originalTheme, setOriginalTheme] = useState<ThemeKey>("mono");
 
   // Veriyi yükle
   useEffect(() => {
@@ -121,7 +121,7 @@ export default function EditPage({
 
             setFormData(formData);
             setOriginalData(formData);
-            const t = (data.theme as ThemeKey) || "indigo";
+            const t = (data.theme as ThemeKey) || "mono";
             setTheme(t);
             setOriginalTheme(t);
 
@@ -273,8 +273,8 @@ export default function EditPage({
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <div className="relative w-14 h-14 mx-auto mb-4">
-            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#6366f1] border-r-[#8b5cf6] animate-spin" />
-            <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-[#a5b4fc] animate-spin [animation-direction:reverse]" />
+            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#141416] border-r-[#3a3a3d] animate-spin" />
+            <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-[#8a8a8d] animate-spin [animation-direction:reverse]" />
           </div>
           <p className="text-black/50 text-sm">Yükleniyor...</p>
         </div>
@@ -454,7 +454,7 @@ export default function EditPage({
               </h2>
               <label className="cursor-pointer group">
                 <div className="relative w-28 h-28">
-                  <div className="absolute -inset-1 rounded-full bg-[linear-gradient(135deg,#4f46e5,#7c3aed)] opacity-30 blur-[2px] group-hover:opacity-60 transition" />
+                  <div className="absolute -inset-1 rounded-full bg-[linear-gradient(135deg,#141416,#3a3a3d)] opacity-30 blur-[2px] group-hover:opacity-60 transition" />
                   <div className="relative w-28 h-28 rounded-full overflow-hidden bg-black/[0.03] border border-black/10 flex items-center justify-center">
                     {avatarPreview || avatarUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element

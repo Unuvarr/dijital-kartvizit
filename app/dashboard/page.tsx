@@ -80,8 +80,8 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="relative w-14 h-14">
-          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#6366f1] border-r-[#8b5cf6] animate-spin" />
-          <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-[#a5b4fc] animate-spin [animation-direction:reverse]" />
+          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#141416] border-r-[#3a3a3d] animate-spin" />
+          <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-[#8a8a8d] animate-spin [animation-direction:reverse]" />
         </div>
       </div>
     );

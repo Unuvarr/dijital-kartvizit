@@ -5,10 +5,10 @@
   --background: #f4f4f6;
   --foreground: #1d1d1f;
   --muted: #6e6e73;
-  /* Tek imza aksan: indigo -> mor */
-  --accent: #4f46e5;
-  --accent-2: #7c3aed;
-  --accent-soft: rgba(79, 70, 229, 0.12);
+  /* Tek imza aksan: monokrom siyah (karttaki kimlikle birebir) */
+  --accent: #141416;
+  --accent-2: #3a3a3d;
+  --accent-soft: rgba(20, 20, 22, 0.10);
   /* Yuzeyler */
   --surface: #ffffff;
   --surface-2: #f0f0f3;
@@ -120,12 +120,12 @@ textarea,
 .btn-neon {
   position: relative;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  box-shadow: 0 8px 24px -10px rgba(79, 70, 229, 0.55);
+  box-shadow: 0 8px 24px -10px rgba(20, 20, 22, 0.5);
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 .btn-neon:hover {
-  box-shadow: 0 12px 30px -10px rgba(124, 58, 237, 0.6);
-  filter: brightness(1.04);
+  box-shadow: 0 12px 30px -10px rgba(20, 20, 22, 0.55);
+  filter: brightness(1.08);
 }
 
 /* Inputlar */
