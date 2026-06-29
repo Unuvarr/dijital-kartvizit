@@ -446,7 +446,70 @@ export default function EditPage({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Profil Fotografi */}
+          {/* 1) Önce kimlik & içerik (metin alanları) */}
+          {fieldGroups.map((group) => (
+            <motion.div key={group.title} variants={cardVariants} className="neon-border">
+              <div className="glass rounded-[2rem] p-6">
+                <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-6">
+                  {group.title}
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {group.fields.map((fieldName) => (
+                    <div
+                      key={fieldName}
+                      className={fieldName === "address" ? "md:col-span-2" : ""}
+                    >
+                      <label className="block text-sm font-medium text-black/70 mb-1.5">
+                        {fieldLabels[fieldName]}
+                      </label>
+                      {fieldName === "address" ? (
+                        <textarea
+                          name={fieldName}
+                          value={formData[fieldName as keyof FormData] || ""}
+                          onChange={handleChange}
+                          rows={3}
+                          className="input-neon resize-none"
+                        />
+                      ) : (
+                        <input
+                          type={
+                            fieldName === "email"
+                              ? "email"
+                              : fieldName === "website"
+                              ? "url"
+                              : "text"
+                          }
+                          name={fieldName}
+                          value={formData[fieldName as keyof FormData] || ""}
+                          onChange={handleChange}
+                          required={
+                            fieldName === "first_name" ||
+                            fieldName === "last_name" ||
+                            fieldName === "phone" ||
+                            fieldName === "email"
+                          }
+                          className="input-neon"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+
+          {/* 2) Sosyal Medya & Bağlantılar */}
+          <motion.div variants={cardVariants} className="neon-border">
+            <div className="glass rounded-[2rem] p-6">
+              <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-6">
+                Sosyal Medya & Bağlantılar
+              </h2>
+              <SocialLinksEditor value={socialLinks} onChange={setSocialLinks} />
+            </div>
+          </motion.div>
+
+          {/* 3) Görseller — Profil Fotografi */}
           <motion.div variants={cardVariants} className="neon-border">
             <div className="glass rounded-[2rem] p-6 flex flex-col items-center">
               <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-4 self-start">
@@ -536,7 +599,7 @@ export default function EditPage({
               <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-4 flex items-center gap-2">
                 <FaPalette /> Tema
               </h2>
-              <div className="grid grid-cols-5 gap-3">
+              <div className="grid grid-cols-4 gap-3">
                 {(Object.keys(THEMES) as ThemeKey[]).map((key) => {
                   const t = THEMES[key];
                   const active = theme === key;
@@ -578,68 +641,6 @@ export default function EditPage({
               <p className="text-xs text-black/40 mt-3">
                 Profil sayfası butonları ve vurguları seçilen renge döner.
               </p>
-            </div>
-          </motion.div>
-
-          {fieldGroups.map((group) => (
-            <motion.div key={group.title} variants={cardVariants} className="neon-border">
-              <div className="glass rounded-[2rem] p-6">
-                <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-6">
-                  {group.title}
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {group.fields.map((fieldName) => (
-                    <div
-                      key={fieldName}
-                      className={fieldName === "address" ? "md:col-span-2" : ""}
-                    >
-                      <label className="block text-sm font-medium text-black/70 mb-1.5">
-                        {fieldLabels[fieldName]}
-                      </label>
-                      {fieldName === "address" ? (
-                        <textarea
-                          name={fieldName}
-                          value={formData[fieldName as keyof FormData] || ""}
-                          onChange={handleChange}
-                          rows={3}
-                          className="input-neon resize-none"
-                        />
-                      ) : (
-                        <input
-                          type={
-                            fieldName === "email"
-                              ? "email"
-                              : fieldName === "website"
-                              ? "url"
-                              : "text"
-                          }
-                          name={fieldName}
-                          value={formData[fieldName as keyof FormData] || ""}
-                          onChange={handleChange}
-                          required={
-                            fieldName === "first_name" ||
-                            fieldName === "last_name" ||
-                            fieldName === "phone" ||
-                            fieldName === "email"
-                          }
-                          className="input-neon"
-                        />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          ))}
-
-          {/* Sosyal Medya & Bağlantılar */}
-          <motion.div variants={cardVariants} className="neon-border">
-            <div className="glass rounded-[2rem] p-6">
-              <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-6">
-                Sosyal Medya & Bağlantılar
-              </h2>
-              <SocialLinksEditor value={socialLinks} onChange={setSocialLinks} />
             </div>
           </motion.div>
 

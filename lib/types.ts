@@ -30,52 +30,41 @@ export interface SocialLink {
   label?: string; // sadece "custom" icin gosterilecek ad
 }
 
-export type ThemeKey = "mono" | "indigo" | "emerald" | "rose" | "amber" | "slate";
+export type ThemeKey = "mono" | "navy" | "emerald" | "gold";
 
 export const THEMES: Record<
   ThemeKey,
   { name: string; accent: string; accent2: string; soft: string }
 > = {
   mono: {
-    name: "Siyah-Beyaz",
+    name: "Siyah",
     accent: "#141416",
     accent2: "#3a3a3d",
     soft: "rgba(20, 20, 22, 0.10)",
   },
-  indigo: {
-    name: "Indigo",
-    accent: "#4f46e5",
-    accent2: "#7c3aed",
-    soft: "rgba(79, 70, 229, 0.12)",
+  navy: {
+    name: "Lacivert",
+    accent: "#1b2c52",
+    accent2: "#2d4a82",
+    soft: "rgba(27, 44, 82, 0.10)",
   },
   emerald: {
     name: "Zümrüt",
-    accent: "#059669",
-    accent2: "#0d9488",
-    soft: "rgba(5, 150, 105, 0.12)",
+    accent: "#0f5132",
+    accent2: "#157f4c",
+    soft: "rgba(15, 81, 50, 0.10)",
   },
-  rose: {
-    name: "Gül",
-    accent: "#e11d48",
-    accent2: "#db2777",
-    soft: "rgba(225, 29, 72, 0.12)",
-  },
-  amber: {
-    name: "Kehribar",
-    accent: "#d97706",
-    accent2: "#ea580c",
-    soft: "rgba(217, 119, 6, 0.12)",
-  },
-  slate: {
-    name: "Antrasit",
-    accent: "#334155",
-    accent2: "#1e293b",
-    soft: "rgba(51, 65, 85, 0.12)",
+  gold: {
+    name: "Altın",
+    accent: "#8a6515",
+    accent2: "#b8901f",
+    soft: "rgba(138, 101, 21, 0.10)",
   },
 };
 
 export function themeStyle(key?: ThemeKey | null): React.CSSProperties {
-  const t = THEMES[key || "mono"];
+  // Eski/bilinmeyen tema anahtarları (indigo, rose...) güvenle mono'ya düşer
+  const t = (key && THEMES[key]) || THEMES.mono;
   return {
     ["--accent" as string]: t.accent,
     ["--accent-2" as string]: t.accent2,

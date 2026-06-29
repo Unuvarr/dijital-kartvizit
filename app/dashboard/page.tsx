@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { getCurrentUserId } from "@/lib/auth";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
-import { FaUserPlus, FaIdCard, FaArrowLeft } from "react-icons/fa";
+import { FaUserPlus, FaIdCard, FaArrowLeft, FaRedo, FaTrashAlt } from "react-icons/fa";
 import type { Profile } from "@/lib/types";
 
 interface LeadRow {
@@ -21,15 +21,10 @@ interface LeadRow {
   message: string | null;
 }
 
-interface CardSummary {
-  card: Profile;
-  leadCount: number;
-}
-
 export default function DashboardPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [cards, setCards] = useState<CardSummary[]>([]);
+  const [cards, setCards] = useState<Profile[]>([]);
   const [leads, setLeads] = useState<LeadRow[]>([]);
 
   useEffect(() => {
@@ -47,19 +42,6 @@ export default function DashboardPage() {
 
       const list = (myCards as Profile[]) || [];
 
-      const summaries: CardSummary[] = await Promise.all(
-        list.map(async (card) => {
-          const { count: leadCount } = await supabase
-            .from("card_leads")
-            .select("*", { count: "exact", head: true })
-            .eq("card_id", card.id);
-          return {
-            card,
-            leadCount: leadCount || 0,
-          };
-        })
-      );
-
       if (list.length > 0) {
         const ids = list.map((c) => c.id);
         const { data: allLeads } = await supabase
@@ -67,14 +49,35 @@ export default function DashboardPage() {
           .select("*")
           .in("card_id", ids)
           .order("created_at", { ascending: false })
-          .limit(20);
+          .limit(50);
         setLeads((allLeads as LeadRow[]) || []);
       }
 
-      setCards(summaries);
+      setCards(list);
       setLoading(false);
     })();
   }, [router]);
+
+  // Okutulma sayacını sıfırla
+  async function resetViews(cardId: string) {
+    if (!confirm("Bu kartın okutulma sayısı sıfırlansın mı?")) return;
+    const { error } = await supabase
+      .from("digital_cards")
+      .update({ view_count: 0 })
+      .eq("id", cardId);
+    if (!error) {
+      setCards((prev) =>
+        prev.map((c) => (c.id === cardId ? { ...c, view_count: 0 } : c))
+      );
+    }
+  }
+
+  // Bırakılan kişiyi (lead) sil
+  async function deleteLead(id: number) {
+    if (!confirm("Bu kişiyi listeden silmek istiyor musun?")) return;
+    const { error } = await supabase.from("card_leads").delete().eq("id", id);
+    if (!error) setLeads((prev) => prev.filter((l) => l.id !== id));
+  }
 
   if (loading) {
     return (
@@ -129,7 +132,7 @@ export default function DashboardPage() {
           variants={itemVariants}
           className="grid gap-3 sm:grid-cols-2"
         >
-          {cards.map(({ card, leadCount }) => (
+          {cards.map((card) => (
             <motion.div
               key={card.id}
               variants={cardVariants}
@@ -163,19 +166,21 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 mb-3 text-center">
-                  <div className="glass-soft rounded-lg p-2">
+                <div className="mb-1 rounded-lg p-3 bg-black/[0.03] border border-black/[0.06] flex items-center justify-between">
+                  <div>
                     <p className="text-[10px] text-black/45 uppercase tracking-wider">
                       Toplam Okutulma
                     </p>
-                    <p className="text-lg font-semibold">{card.view_count ?? 0}</p>
+                    <p className="text-xl font-semibold">{card.view_count ?? 0}</p>
                   </div>
-                  <div className="glass-soft rounded-lg p-2">
-                    <p className="text-[10px] text-black/45 uppercase tracking-wider">
-                      Lead
-                    </p>
-                    <p className="text-lg font-semibold">{leadCount}</p>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => resetViews(card.id)}
+                    title="Sayacı sıfırla"
+                    className="inline-flex items-center gap-1.5 text-[11px] text-black/55 hover:text-black px-2.5 py-1.5 rounded-lg hover:bg-black/[0.06] transition-colors"
+                  >
+                    <FaRedo className="text-[10px]" /> Sıfırla
+                  </button>
                 </div>
               </div>
             </motion.div>
@@ -200,11 +205,22 @@ export default function DashboardPage() {
                     key={l.id}
                     className="glass-soft rounded-xl p-3 text-sm"
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <p className="font-medium">{l.name}</p>
-                      <p className="text-[10px] text-black/40">
-                        {new Date(l.created_at).toLocaleDateString("tr-TR")}
-                      </p>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <p className="text-[10px] text-black/40">
+                          {new Date(l.created_at).toLocaleDateString("tr-TR")}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => deleteLead(l.id)}
+                          title="Sil"
+                          aria-label="Sil"
+                          className="text-black/30 hover:text-red-600 transition-colors p-1"
+                        >
+                          <FaTrashAlt className="text-xs" />
+                        </button>
+                      </div>
                     </div>
                     <div className="text-xs text-black/55 mt-1 space-x-3">
                       {l.phone && <span>📞 {l.phone}</span>}

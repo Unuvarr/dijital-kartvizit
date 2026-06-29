@@ -61,9 +61,6 @@ export default function ProfileClient({
   const [showLead, setShowLead] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);
   const [activeModal, setActiveModal] = useState<"address" | null>(null);
-  const [viewCount, setViewCount] = useState<number | null>(
-    profile.view_count ?? null
-  );
   const [profileUrl] = useState(() =>
     typeof window !== "undefined" ? window.location.href : ""
   );
@@ -78,10 +75,9 @@ export default function ProfileClient({
       const owner = !!(userId && profile.owner_id && userId === profile.owner_id);
       setIsOwner(owner);
 
-      // Sahip kendi kartina bakinca sayma
+      // Sahip kendi kartina bakinca sayma; sayac yalnizca dashboard'da gosterilir
       if (!owner) {
-        const newCount = await trackView(slug);
-        if (newCount !== null && !cancelled) setViewCount(newCount);
+        await trackView(slug);
       }
     })();
     return () => {
@@ -186,37 +182,35 @@ export default function ProfileClient({
               </div>
             )}
 
-            {/* Toolbar */}
+            {/* Toolbar — Paylaş & QR solda, sahip aksiyonları sağda */}
             <div
               className={`${
                 profile.cover_url ? "absolute top-0 inset-x-0" : "relative"
-              } z-20 flex items-center justify-end gap-2 px-5 pt-5`}
+              } z-20 flex items-center justify-between gap-2 px-5 pt-5`}
             >
-              <button
-                onClick={handleShare}
-                aria-label="Paylaş"
-                className="w-9 h-9 rounded-full glass-soft flex items-center justify-center text-black/55 hover:text-black hover:bg-black/[0.04] transition-colors"
-              >
-                <FaShare className="text-xs" />
-              </button>
-              <button
-                onClick={() => setShowQR(true)}
-                aria-label="QR Kod"
-                className="w-9 h-9 rounded-full glass-soft flex items-center justify-center text-black/55 hover:text-black hover:bg-black/[0.04] transition-colors"
-              >
-                <FaQrcode className="text-xs" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleShare}
+                  aria-label="Paylaş"
+                  className="w-9 h-9 rounded-full glass-soft flex items-center justify-center text-black/55 hover:text-black hover:bg-black/[0.04] transition-colors"
+                >
+                  <FaShare className="text-xs" />
+                </button>
+                <button
+                  onClick={() => setShowQR(true)}
+                  aria-label="QR Kod"
+                  className="w-9 h-9 rounded-full glass-soft flex items-center justify-center text-black/55 hover:text-black hover:bg-black/[0.04] transition-colors"
+                >
+                  <FaQrcode className="text-xs" />
+                </button>
+              </div>
               {isOwner && (
-                <>
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => router.push("/dashboard")}
                     aria-label="İstatistik"
+                    title="İstatistik"
                     className="w-9 h-9 rounded-full glass-soft flex items-center justify-center text-black/55 hover:text-black hover:bg-black/[0.04] transition-colors"
-                    title={
-                      viewCount != null
-                        ? `${viewCount} görüntülenme`
-                        : "İstatistik"
-                    }
                   >
                     <FaChartLine className="text-xs" />
                   </button>
@@ -227,7 +221,7 @@ export default function ProfileClient({
                   >
                     <FaEdit className="text-xs" />
                   </button>
-                </>
+                </div>
               )}
             </div>
 
@@ -412,12 +406,6 @@ export default function ProfileClient({
                 <span>Sen de bilgini bırak</span>
               </button>
             </motion.div>
-
-            {isOwner && viewCount != null && (
-              <div className="px-6 pb-4 -mt-1 text-center text-xs text-black/40">
-                👁 {viewCount} görüntülenme
-              </div>
-            )}
 
             {!isOwner && (
               <div className="px-6 pb-6 -mt-1 text-center">
