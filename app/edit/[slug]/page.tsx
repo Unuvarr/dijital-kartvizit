@@ -627,11 +627,13 @@ export default function EditPage({
                   />
                 </button>
               </div>
-              {showAppt && !formData.whatsapp?.trim() && (
-                <p className="text-xs text-red-600 mt-3">
-                  ⚠️ Çalışması için yukarıda WhatsApp numaranı gir.
-                </p>
-              )}
+              {showAppt &&
+                !formData.whatsapp?.trim() &&
+                !formData.phone?.trim() && (
+                  <p className="text-xs text-red-600 mt-3">
+                    ⚠️ Çalışması için WhatsApp veya telefon numaranı gir.
+                  </p>
+                )}
             </div>
           </motion.div>
 

@@ -173,10 +173,12 @@ export default function ProfileClient({
   // Geçerli web sitesi adı (yoksa/geçersizse satır gösterilmez)
   const website = profile.website ? siteName(profile.website) : null;
 
-  // Randevu Al (WhatsApp): açıksa ve numara varsa hazır mesajla WhatsApp'ı açar
+  // Randevu Al (WhatsApp): açıksa ve numara varsa hazır mesajla WhatsApp'ı açar.
+  // WhatsApp alanı boşsa telefon numarasına düşer.
+  const apptNumber = profile.whatsapp || profile.phone || "";
   const apptHref =
-    profile.show_appointment && profile.whatsapp
-      ? `https://wa.me/${profile.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
+    profile.show_appointment && apptNumber
+      ? `https://wa.me/${apptNumber.replace(/\D/g, "")}?text=${encodeURIComponent(
           "Merhaba, sizden randevu almak istiyorum."
         )}`
       : null;
