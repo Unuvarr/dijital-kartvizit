@@ -37,14 +37,16 @@ function normalizeUrl(url: string) {
   return `https://${url}`;
 }
 
-function siteName(url: string) {
+function siteName(url: string): string | null {
   let host: string;
   try {
     host = new URL(normalizeUrl(url)).hostname;
   } catch {
     host = url.replace(/^https?:\/\//i, "").split("/")[0];
   }
-  return host.replace(/^www\./, "").toLocaleLowerCase("tr-TR");
+  host = host.replace(/^www\./, "").toLocaleLowerCase("tr-TR");
+  // Geçerli alan adı değilse (nokta içermiyor, ör. "https") gösterme
+  return host.includes(".") ? host : null;
 }
 
 export default function ProfileClient({
@@ -146,6 +148,9 @@ export default function ProfileClient({
       ? [{ value: profile.address }]
       : []
   ).filter((a) => a.value && a.value.trim());
+
+  // Geçerli web sitesi adı (yoksa/geçersizse satır gösterilmez)
+  const website = profile.website ? siteName(profile.website) : null;
 
   const quickActions = [
     profile.phone
@@ -366,7 +371,7 @@ export default function ProfileClient({
 
             {/* Detay */}
             <div className="px-6 pb-5 space-y-2.5">
-              {profile.website && (
+              {website && profile.website && (
                 <ContactRow
                   icon={
                     // eslint-disable-next-line @next/next/no-img-element
@@ -382,7 +387,7 @@ export default function ProfileClient({
                     />
                   }
                   label="Web Sitesi"
-                  value={siteName(profile.website)}
+                  value={website}
                   href={normalizeUrl(profile.website)}
                   external
                 />
@@ -400,7 +405,7 @@ export default function ProfileClient({
                 <ContactRow
                   key={i}
                   icon={<FaMapMarkerAlt />}
-                  label={addr.label?.trim() || "Adres"}
+                  label="Adres"
                   onClick={() => setAddressModal(addr)}
                 />
               ))}
