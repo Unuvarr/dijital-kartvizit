@@ -387,6 +387,19 @@ export default function EditPage({
     address: "Adres",
   };
 
+  // Alanların içinde görünen ipucu (placeholder) — kaydedilmez, sadece yönlendirir
+  const fieldPlaceholders: { [key: string]: string } = {
+    first_name: "Ad",
+    last_name: "Soyad",
+    title: "ör. Emlak Danışmanı",
+    company: "ör. Ribank Gayrimenkul",
+    phone: "05XX XXX XX XX",
+    email: "ornek@email.com",
+    whatsapp: "05XX XXX XX XX",
+    website: "ornek.com",
+    iban: "TRXX XXXX XXXX XXXX XXXX XXXX XX",
+  };
+
   return (
     <div className="min-h-screen py-12 px-4">
       <AvatarCropper
@@ -513,6 +526,7 @@ export default function EditPage({
                           name={fieldName}
                           value={formData[fieldName as keyof FormData] || ""}
                           onChange={handleChange}
+                          placeholder={fieldPlaceholders[fieldName] || ""}
                           required={
                             fieldName === "first_name" ||
                             fieldName === "last_name" ||

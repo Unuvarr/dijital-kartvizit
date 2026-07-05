@@ -33,8 +33,10 @@ import {
 } from "react-icons/fa";
 
 function normalizeUrl(url: string) {
-  if (/^https?:\/\//i.test(url)) return url;
-  return `https://${url}`;
+  // Baştaki http/https ve (bozuk dahil) slash'ları temizle, sonra https:// ekle.
+  // "https:/ritma.com.tr", "http://x", "www.x.com", "x.com" → hepsi düzelir.
+  const bare = url.trim().replace(/^\s*https?:?\/*/i, "");
+  return `https://${bare}`;
 }
 
 function siteName(url: string): string | null {

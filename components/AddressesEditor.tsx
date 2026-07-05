@@ -38,41 +38,53 @@ export default function AddressesEditor({
         </p>
       )}
 
-      {rows.map((row, i) => (
-        <div
-          key={i}
-          className="rounded-2xl border border-black/[0.08] bg-black/[0.015] p-3.5 space-y-2.5"
-        >
-          <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-lg flex items-center justify-center text-black/50 bg-black/[0.04] border border-black/[0.06] flex-shrink-0">
-              <FaMapMarkerAlt className="text-xs" />
-            </span>
-            <input
-              type="text"
-              value={row.label || ""}
-              onChange={(e) => update(i, { label: e.target.value.slice(0, 30) })}
-              placeholder="Etiket (ör. Ofis, Şube) — opsiyonel"
-              className="input-neon !py-2.5 flex-1"
+      {rows.map((row, i) => {
+        // Ev/İş sabit etiket; yalnız "Diğer" (serbest) satırda metin kutusu
+        const fixed = row.label === "Ev" || row.label === "İş";
+        const RowIcon =
+          row.label === "Ev" ? FaHome : row.label === "İş" ? FaBriefcase : FaMapMarkerAlt;
+        return (
+          <div
+            key={i}
+            className="rounded-2xl border border-black/[0.08] bg-black/[0.015] p-3.5 space-y-2.5"
+          >
+            <div className="flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg flex items-center justify-center text-black/50 bg-black/[0.04] border border-black/[0.06] flex-shrink-0">
+                <RowIcon className="text-xs" />
+              </span>
+              {fixed ? (
+                <span className="flex-1 text-sm font-medium text-[#1d1d1f]">
+                  {row.label}
+                </span>
+              ) : (
+                <input
+                  type="text"
+                  value={row.label || ""}
+                  onChange={(e) => update(i, { label: e.target.value.slice(0, 30) })}
+                  placeholder="Etiket (ör. Depo, Şube)"
+                  className="input-neon !py-2.5 flex-1"
+                />
+              )}
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                aria-label="Adresi sil"
+                title="Adresi sil"
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-black/35 hover:text-red-600 hover:bg-red-500/[0.06] transition-colors flex-shrink-0"
+              >
+                <FaTrashAlt className="text-sm" />
+              </button>
+            </div>
+            <textarea
+              value={row.value}
+              onChange={(e) => update(i, { value: e.target.value.slice(0, 300) })}
+              rows={2}
+              placeholder="Adres metni"
+              className="input-neon resize-none"
             />
-            <button
-              type="button"
-              onClick={() => remove(i)}
-              aria-label="Adresi sil"
-              title="Adresi sil"
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-black/35 hover:text-red-600 hover:bg-red-500/[0.06] transition-colors flex-shrink-0"
-            >
-              <FaTrashAlt className="text-sm" />
-            </button>
           </div>
-          <textarea
-            value={row.value}
-            onChange={(e) => update(i, { value: e.target.value.slice(0, 300) })}
-            rows={2}
-            placeholder="Adres metni"
-            className="input-neon resize-none"
-          />
-        </div>
-      ))}
+        );
+      })}
 
       {rows.length < MAX && (
         <div>
