@@ -412,17 +412,22 @@ export default function EditPage({
         animate="show"
         className="max-w-2xl mx-auto"
       >
-        {/* Header */}
-        <motion.div variants={itemVariants} className="flex items-center gap-4 mb-8">
-          <button
-            onClick={() => router.push(`/profile/${slug}`)}
-            className="glass-soft inline-flex items-center gap-2 text-black/70 hover:text-black px-4 py-2 rounded-xl transition"
-          >
-            <FaArrowLeft /> Geri
-          </button>
-          <h1 className="text-3xl font-bold neon-text">
+        {/* Header — yapışkan üst bar; kapat/önizle sağ üstte */}
+        <motion.div
+          variants={itemVariants}
+          className="sticky top-0 z-40 -mx-4 px-4 py-3 mb-6 flex items-center justify-between bg-[#f4f4f6]/85 backdrop-blur-md"
+        >
+          <h1 className="text-2xl font-bold neon-text">
             {isNew ? "Kartını Tamamla" : "Kartını Düzenle"}
           </h1>
+          <button
+            onClick={() => router.push(`/profile/${slug}`)}
+            aria-label="Profili gör"
+            title="Profili gör"
+            className="glass-soft inline-flex items-center justify-center w-10 h-10 rounded-xl text-black/70 hover:text-black hover:bg-black/[0.04] transition-colors flex-shrink-0"
+          >
+            <FaArrowLeft />
+          </button>
         </motion.div>
 
         {/* Kayittan yeni gelindiyse karsilama */}
