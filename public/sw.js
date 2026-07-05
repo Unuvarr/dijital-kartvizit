@@ -1,7 +1,7 @@
 // Dijital Kartvizit - basit offline service worker
 // Strateji: navigation icin network-first + cache fallback, static icin cache-first.
 
-const CACHE = "kartvizit-v1";
+const CACHE = "kartvizit-v2";
 const OFFLINE = "/offline";
 
 self.addEventListener("install", (event) => {
