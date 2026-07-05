@@ -7,7 +7,7 @@ import { getCurrentUserId } from "@/lib/auth";
 import { uploadAvatar } from "@/lib/storage";
 import { motion, AnimatePresence } from "framer-motion";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
-import { FaSave, FaArrowLeft, FaCheck, FaExclamationCircle, FaPalette } from "react-icons/fa";
+import { FaSave, FaArrowLeft, FaCheck, FaExclamationCircle, FaPalette, FaWhatsapp } from "react-icons/fa";
 import { THEMES, type ThemeKey, themeStyle } from "@/lib/types";
 import AvatarCropper from "@/components/AvatarCropper";
 import SocialLinksEditor from "@/components/SocialLinksEditor";
@@ -76,6 +76,13 @@ export default function EditPage({
   const [originalSocial, setOriginalSocial] = useState<string>("[]");
   const [addresses, setAddresses] = useState<AddressItem[]>([]);
   const [originalAddresses, setOriginalAddresses] = useState<string>("[]");
+  const [linkCopied, setLinkCopied] = useState(false);
+  const shareUrl = `https://ritycard.one/${slug}`;
+  const copyShareLink = () => {
+    navigator.clipboard.writeText(shareUrl);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
   // Kayittan yeni gelindiyse karsilama bandi goster
   const [isNew] = useState(
     () =>
@@ -452,10 +459,29 @@ export default function EditPage({
             <p className="text-sm font-semibold text-[#1d1d1f] mb-0.5">
               🎉 Kartın oluştu ve yayında!
             </p>
-            <p className="text-xs text-black/60">
-              Fotoğraf, sosyal medya ve tema ekleyerek tamamla. İstersen şimdi,
-              istersen sonra — değişiklikleri kaydetmeyi unutma.
+            <p className="text-xs text-black/60 mb-3">
+              Aşağıdan fotoğraf, sosyal medya ve temayı ekle. Hazırsan hemen
+              paylaş:
             </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={copyShareLink}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-white border border-black/10 text-[#1d1d1f] hover:bg-black/[0.03] transition-colors"
+              >
+                {linkCopied ? "✓ Kopyalandı" : "🔗 Linki Kopyala"}
+              </button>
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(
+                  `Dijital kartım burada 👇\n${shareUrl}`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-white border border-black/10 text-[#1d1d1f] hover:bg-black/[0.03] transition-colors"
+              >
+                <FaWhatsapp className="text-[#25D366]" /> WhatsApp'ta paylaş
+              </a>
+            </div>
           </motion.div>
         )}
 

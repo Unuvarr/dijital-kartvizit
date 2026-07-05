@@ -383,7 +383,7 @@ export default function ProfileClient({
                       whileTap={{ scale: 0.93, y: 1 }}
                       className="glass-soft rounded-2xl py-3.5 flex flex-col items-center justify-center gap-1.5 text-black/70 hover:text-[#1d1d1f] hover:bg-black/[0.03] transition-colors"
                     >
-                      <Icon className="text-base" />
+                      <Icon className="text-base" style={{ color: "var(--accent)" }} />
                       <span className="text-[11px] font-medium">{label}</span>
                     </motion.a>
                   ))}
@@ -668,7 +668,10 @@ function ContactRow({
   const inner = (
     <div className="glass-soft rounded-2xl p-3.5 flex items-center justify-between hover:bg-black/[0.02] transition-colors">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-black/70 bg-black/[0.04] border border-black/[0.06]">
+        <div
+          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 border border-black/[0.06]"
+          style={{ backgroundColor: "var(--accent-soft)", color: "var(--accent)" }}
+        >
           <span className="text-xs">{icon}</span>
         </div>
         <div className="text-left min-w-0 flex-1">
