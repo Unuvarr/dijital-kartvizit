@@ -8,7 +8,7 @@ import { getCurrentUserId } from "@/lib/auth";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
 import { buildVCard } from "@/lib/vcard";
 import { trackView } from "@/lib/analytics";
-import { themeStyle, type Profile, type SocialLink } from "@/lib/types";
+import { themeStyle, type Profile, type SocialLink, type AddressItem } from "@/lib/types";
 import { buildSocialHref, platformMeta, socialLabel } from "@/lib/socials";
 import BrandedQR from "@/components/BrandedQR";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
@@ -60,7 +60,7 @@ export default function ProfileClient({
   const [showQR, setShowQR] = useState(false);
   const [showLead, setShowLead] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);
-  const [activeModal, setActiveModal] = useState<"address" | null>(null);
+  const [addressModal, setAddressModal] = useState<AddressItem | null>(null);
   const [profileUrl] = useState(() =>
     typeof window !== "undefined" ? window.location.href : ""
   );
@@ -137,6 +137,15 @@ export default function ProfileClient({
           profile.twitter ? { platform: "x", value: profile.twitter } : null,
         ].filter(Boolean) as SocialLink[])
   ).filter((l) => l.value && l.value.trim());
+
+  // Adresler: yeni çoklu alan varsa onu kullan; yoksa eski tek "address"e düş
+  const addresses: AddressItem[] = (
+    profile.addresses && profile.addresses.length > 0
+      ? profile.addresses
+      : profile.address
+      ? [{ value: profile.address }]
+      : []
+  ).filter((a) => a.value && a.value.trim());
 
   const quickActions = [
     profile.phone
@@ -387,13 +396,14 @@ export default function ProfileClient({
                   copied={copied === "iban"}
                 />
               )}
-              {profile.address && (
+              {addresses.map((addr, i) => (
                 <ContactRow
+                  key={i}
                   icon={<FaMapMarkerAlt />}
-                  label="Adres"
-                  onClick={() => setActiveModal("address")}
+                  label={addr.label?.trim() || "Adres"}
+                  onClick={() => setAddressModal(addr)}
                 />
-              )}
+              ))}
             </div>
 
             {/* Lead capture — ikincil, aşağıda */}
@@ -528,10 +538,10 @@ export default function ProfileClient({
 
       {/* Adres */}
       <AnimatePresence>
-        {activeModal && (
+        {addressModal && (
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-            onClick={() => setActiveModal(null)}
+            onClick={() => setAddressModal(null)}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -546,7 +556,7 @@ export default function ProfileClient({
             >
               <div className="glass rounded-[1.75rem] p-8 text-center relative">
                 <button
-                  onClick={() => setActiveModal(null)}
+                  onClick={() => setAddressModal(null)}
                   className="absolute top-4 right-4 text-black/40 hover:text-black transition"
                   aria-label="Kapat"
                 >
@@ -556,17 +566,17 @@ export default function ProfileClient({
                   <FaMapMarkerAlt />
                 </div>
                 <h3 className="text-lg font-semibold text-[#1d1d1f] mb-1">
-                  Adres
+                  {addressModal.label?.trim() || "Adres"}
                 </h3>
                 <p className="text-sm text-black/70 break-words bg-black/[0.03] border border-black/[0.06] rounded-xl p-3 my-4">
-                  {profile.address}
+                  {addressModal.value}
                 </p>
                 <div className="space-y-3">
                   <motion.a
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     href={`https://maps.google.com/?q=${encodeURIComponent(
-                      profile.address || ""
+                      addressModal.value
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -578,7 +588,7 @@ export default function ProfileClient({
                   <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => handleCopy(profile.address, "address")}
+                    onClick={() => handleCopy(addressModal.value, "address")}
                     className="w-full py-3 glass-soft text-[#1d1d1f] rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-black/[0.03] transition-colors"
                   >
                     {copied === "address" ? (

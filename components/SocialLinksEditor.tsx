@@ -3,7 +3,8 @@
 import { SOCIAL_PLATFORMS, platformMeta } from "@/lib/socials";
 import type { SocialLink } from "@/lib/types";
 import PlatformSelect from "@/components/PlatformSelect";
-import { FaPlus, FaTrash } from "react-icons/fa6";
+import SocialIcon from "@/components/SocialIcon";
+import { FaTrash } from "react-icons/fa6";
 
 /**
  * Esnek sosyal baglanti editoru: kullanici istedigi kadar platform ekler,
@@ -27,12 +28,9 @@ export default function SocialLinksEditor({
     value.map((l) => l.platform).filter((p) => p !== "custom")
   );
 
-  const add = () => {
-    // Henuz eklenmemis ilk platformu sec; hepsi doluysa "Ozel link"e dus
-    const next =
-      SOCIAL_PLATFORMS.find((p) => p.key !== "custom" && !used.has(p.key))
-        ?.key || "custom";
-    onChange([...value, { platform: next, value: "" }]);
+  const add = (key: string) => {
+    if (key !== "custom" && used.has(key)) return;
+    onChange([...value, { platform: key, value: "" }]);
   };
 
   return (
@@ -106,13 +104,35 @@ export default function SocialLinksEditor({
         );
       })}
 
-      <button
-        type="button"
-        onClick={add}
-        className="w-full glass-soft rounded-xl py-2.5 text-sm font-medium text-black/70 hover:text-black hover:bg-black/[0.03] transition-colors flex items-center justify-center gap-2"
-      >
-        <FaPlus className="text-xs" /> Bağlantı Ekle
-      </button>
+      <div>
+        <p className="text-xs text-black/45 mb-2">Bağlantı ekle</p>
+        <div className="grid grid-cols-6 gap-2">
+          {SOCIAL_PLATFORMS.map((p) => {
+            const isUsed = p.key !== "custom" && used.has(p.key);
+            return (
+              <button
+                key={p.key}
+                type="button"
+                disabled={isUsed}
+                onClick={() => add(p.key)}
+                title={p.label}
+                aria-label={p.label}
+                className={`aspect-square rounded-xl flex items-center justify-center border transition-colors ${
+                  isUsed
+                    ? "opacity-30 cursor-not-allowed border-black/[0.06]"
+                    : "glass-soft border-black/[0.06] hover:bg-black/[0.04]"
+                }`}
+              >
+                <SocialIcon
+                  platform={p.key}
+                  className="text-lg"
+                  style={{ color: p.color }}
+                />
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

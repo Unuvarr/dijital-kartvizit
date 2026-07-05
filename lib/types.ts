@@ -17,6 +17,7 @@ export interface Profile {
   website?: string | null;
   iban?: string | null;
   address?: string | null;
+  addresses?: AddressItem[] | null;
   owner_id?: string | null;
   owner_email?: string | null;
   theme?: ThemeKey | null;
@@ -28,6 +29,11 @@ export interface SocialLink {
   platform: string; // SOCIAL_PLATFORMS key veya "custom"
   value: string; // kullanici adi veya tam URL
   label?: string; // sadece "custom" icin gosterilecek ad
+}
+
+export interface AddressItem {
+  label?: string; // ör. "Ofis", "Şube" (opsiyonel)
+  value: string; // adres metni
 }
 
 export type ThemeKey = "mono" | "navy" | "emerald" | "gold";

@@ -11,7 +11,8 @@ import { FaSave, FaArrowLeft, FaCheck, FaExclamationCircle, FaPalette } from "re
 import { THEMES, type ThemeKey, themeStyle } from "@/lib/types";
 import AvatarCropper from "@/components/AvatarCropper";
 import SocialLinksEditor from "@/components/SocialLinksEditor";
-import type { SocialLink } from "@/lib/types";
+import AddressesEditor from "@/components/AddressesEditor";
+import type { SocialLink, AddressItem } from "@/lib/types";
 import { sanitizeField, validateContactForm } from "@/lib/formSanitize";
 
 interface FormData {
@@ -73,6 +74,8 @@ export default function EditPage({
   const [theme, setTheme] = useState<ThemeKey>("mono");
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [originalSocial, setOriginalSocial] = useState<string>("[]");
+  const [addresses, setAddresses] = useState<AddressItem[]>([]);
+  const [originalAddresses, setOriginalAddresses] = useState<string>("[]");
   // Kayittan yeni gelindiyse karsilama bandi goster
   const [isNew] = useState(
     () =>
@@ -138,6 +141,15 @@ export default function EditPage({
             }
             setSocialLinks(links);
             setOriginalSocial(JSON.stringify(links));
+
+            // Adresler: yeni alan varsa onu kullan; yoksa eski tek "address"i taşı
+            let addrs: AddressItem[] =
+              (data.addresses as AddressItem[] | null) || [];
+            if (addrs.length === 0 && data.address) {
+              addrs = [{ label: "", value: data.address }];
+            }
+            setAddresses(addrs);
+            setOriginalAddresses(JSON.stringify(addrs));
           } else {
             setError("Bu kartı düzenlemek için izniniz yok");
           }
@@ -223,6 +235,14 @@ export default function EditPage({
         newCoverUrl = await uploadAvatar(slug, coverFile);
       }
 
+      // Boş adresleri ele, etiket/değeri kırp
+      const cleanAddresses: AddressItem[] = addresses
+        .map((a) => ({
+          label: (a.label || "").trim().slice(0, 30),
+          value: (a.value || "").trim().slice(0, 300),
+        }))
+        .filter((a) => a.value);
+
       const { error: updateError } = await supabase
         .from("digital_cards")
         .update({
@@ -238,7 +258,9 @@ export default function EditPage({
           website: formData.website?.trim() || null,
           social_links: socialLinks.filter((l) => l.value && l.value.trim()),
           iban: formData.iban?.trim() || null,
-          address: formData.address?.trim() || null,
+          addresses: cleanAddresses,
+          // Geriye uyumluluk: eski tek "address" kolonu ilk adresle dolu kalsın
+          address: cleanAddresses[0]?.value || null,
           theme,
         })
         .eq("slug", slug);
@@ -256,6 +278,8 @@ export default function EditPage({
       setOriginalData(formData);
       setOriginalTheme(theme);
       setOriginalSocial(JSON.stringify(socialLinks));
+      setAddresses(cleanAddresses);
+      setOriginalAddresses(JSON.stringify(cleanAddresses));
 
       setTimeout(() => {
         setSuccess(false);
@@ -329,7 +353,8 @@ export default function EditPage({
     coverFile !== null ||
     coverUrl !== originalCoverUrl ||
     theme !== originalTheme ||
-    JSON.stringify(socialLinks) !== originalSocial;
+    JSON.stringify(socialLinks) !== originalSocial ||
+    JSON.stringify(addresses) !== originalAddresses;
 
   const fieldGroups = [
     {
@@ -342,7 +367,7 @@ export default function EditPage({
     },
     {
       title: "Ek Bilgiler",
-      fields: ["website", "iban", "address"],
+      fields: ["website", "iban"],
     },
   ];
 
@@ -499,7 +524,17 @@ export default function EditPage({
             </motion.div>
           ))}
 
-          {/* 2) Sosyal Medya & Bağlantılar */}
+          {/* 2) Adresler (birden fazla, etiketli) */}
+          <motion.div variants={cardVariants} className="neon-border">
+            <div className="glass rounded-[2rem] p-6">
+              <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-6">
+                Adresler
+              </h2>
+              <AddressesEditor value={addresses} onChange={setAddresses} />
+            </div>
+          </motion.div>
+
+          {/* 3) Sosyal Medya & Bağlantılar */}
           <motion.div variants={cardVariants} className="neon-border">
             <div className="glass rounded-[2rem] p-6">
               <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-6">
