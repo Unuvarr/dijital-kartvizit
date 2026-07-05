@@ -1,4 +1,12 @@
 import type { Profile } from "./types";
+import { buildSocialHref } from "./socials";
+
+/** Adres etiketini vCard TYPE'a çevir (Ev→HOME, İş→WORK, diğer→WORK) */
+function addrType(label?: string): string {
+  const l = (label || "").toLocaleLowerCase("tr-TR");
+  if (l.includes("ev") || l.includes("home")) return "HOME";
+  return "WORK";
+}
 
 /** Avatar URL'yi base64'e cevirip vCard PHOTO alanina gomer. Hata olursa atlanir. */
 async function fetchPhotoBase64(
@@ -71,22 +79,48 @@ export async function buildVCard(p: Profile): Promise<string> {
     lines.push(`X-SOCIALPROFILE;TYPE=whatsapp:https://wa.me/${wa}`);
   }
   if (p.email) lines.push(`EMAIL;TYPE=INTERNET:${esc(p.email)}`);
-  if (p.address) lines.push(`ADR;TYPE=WORK:;;${esc(p.address)};;;;`);
+
+  // Adresler: çoklu/etiketli varsa hepsi; yoksa eski tek adres
+  const addrs = (
+    p.addresses && p.addresses.length > 0
+      ? p.addresses
+      : p.address
+      ? [{ value: p.address }]
+      : []
+  ).filter((a) => a.value && a.value.trim());
+  for (const a of addrs) {
+    lines.push(`ADR;TYPE=${addrType(a.label)}:;;${esc(a.value)};;;;`);
+  }
+
   if (p.website) {
     const w = /^https?:\/\//i.test(p.website) ? p.website : `https://${p.website}`;
     lines.push(`URL:${esc(w)}`);
   }
-  if (p.instagram) {
-    const u = normalizeSocial("instagram", p.instagram);
-    lines.push(`X-SOCIALPROFILE;TYPE=instagram:${esc(u)}`);
-  }
-  if (p.twitter) {
-    const u = normalizeSocial("twitter", p.twitter);
-    lines.push(`X-SOCIALPROFILE;TYPE=twitter:${esc(u)}`);
-  }
-  if (p.linkedin) {
-    const u = normalizeSocial("linkedin", p.linkedin);
-    lines.push(`X-SOCIALPROFILE;TYPE=linkedin:${esc(u)}`);
+  // Sosyal medya: yeni esnek alan varsa onu kullan; yoksa eski kolonlar
+  const socials = (p.social_links || []).filter((l) => l.value && l.value.trim());
+  if (socials.length > 0) {
+    for (const l of socials) {
+      const url = buildSocialHref(l);
+      if (url && url !== "#") {
+        lines.push(`X-SOCIALPROFILE;TYPE=${esc(l.platform)}:${esc(url)}`);
+      }
+    }
+  } else {
+    if (p.instagram) {
+      lines.push(
+        `X-SOCIALPROFILE;TYPE=instagram:${esc(normalizeSocial("instagram", p.instagram))}`
+      );
+    }
+    if (p.twitter) {
+      lines.push(
+        `X-SOCIALPROFILE;TYPE=twitter:${esc(normalizeSocial("twitter", p.twitter))}`
+      );
+    }
+    if (p.linkedin) {
+      lines.push(
+        `X-SOCIALPROFILE;TYPE=linkedin:${esc(normalizeSocial("linkedin", p.linkedin))}`
+      );
+    }
   }
   if (p.iban) lines.push(`NOTE:IBAN: ${esc(p.iban)}`);
 
