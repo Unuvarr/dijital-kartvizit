@@ -375,18 +375,18 @@ export default function ProfileClient({
               </motion.button>
             </motion.div>
 
-            {/* Randevu Al — WhatsApp üzerinden (opsiyonel) */}
+            {/* Randevu Al — ikincil, ince buton (WhatsApp üzerinden) */}
             {apptHref && (
-              <motion.div variants={itemVariants} className="px-8 pb-4 -mt-1">
+              <motion.div variants={itemVariants} className="px-8 pb-3 -mt-1 flex justify-center">
                 <motion.a
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
                   href={apptHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="glass-soft w-full rounded-2xl py-3.5 px-4 font-semibold text-sm flex items-center justify-center gap-2 text-[#1d1d1f] hover:bg-black/[0.03] transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-full py-2 px-4 text-[13px] font-medium text-black/70 hover:text-[#1d1d1f] glass-soft hover:bg-black/[0.03] transition-colors"
                 >
-                  <FaCalendarCheck style={{ color: "var(--accent)" }} />
+                  <FaCalendarCheck className="text-xs" style={{ color: "var(--accent)" }} />
                   <span>Randevu Al</span>
                 </motion.a>
               </motion.div>
