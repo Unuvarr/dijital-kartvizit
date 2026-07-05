@@ -76,6 +76,8 @@ export default function EditPage({
   const [originalSocial, setOriginalSocial] = useState<string>("[]");
   const [addresses, setAddresses] = useState<AddressItem[]>([]);
   const [originalAddresses, setOriginalAddresses] = useState<string>("[]");
+  const [showAppt, setShowAppt] = useState(false);
+  const [originalShowAppt, setOriginalShowAppt] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const shareUrl = `https://ritycard.one/${slug}`;
   const copyShareLink = () => {
@@ -157,6 +159,10 @@ export default function EditPage({
             }
             setAddresses(addrs);
             setOriginalAddresses(JSON.stringify(addrs));
+
+            const appt = !!data.show_appointment;
+            setShowAppt(appt);
+            setOriginalShowAppt(appt);
           } else {
             setError("Bu kartı düzenlemek için izniniz yok");
           }
@@ -268,6 +274,7 @@ export default function EditPage({
           addresses: cleanAddresses,
           // Geriye uyumluluk: eski tek "address" kolonu ilk adresle dolu kalsın
           address: cleanAddresses[0]?.value || null,
+          show_appointment: showAppt,
           theme,
         })
         .eq("slug", slug);
@@ -287,6 +294,7 @@ export default function EditPage({
       setOriginalSocial(JSON.stringify(socialLinks));
       setAddresses(cleanAddresses);
       setOriginalAddresses(JSON.stringify(cleanAddresses));
+      setOriginalShowAppt(showAppt);
 
       setTimeout(() => {
         setSuccess(false);
@@ -361,7 +369,8 @@ export default function EditPage({
     coverUrl !== originalCoverUrl ||
     theme !== originalTheme ||
     JSON.stringify(socialLinks) !== originalSocial ||
-    JSON.stringify(addresses) !== originalAddresses;
+    JSON.stringify(addresses) !== originalAddresses ||
+    showAppt !== originalShowAppt;
 
   const fieldGroups = [
     {
@@ -589,6 +598,43 @@ export default function EditPage({
             </div>
           </motion.div>
 
+          {/* Randevu Al butonu (WhatsApp) aç/kapa */}
+          <motion.div variants={cardVariants} className="neon-border">
+            <div className="glass rounded-[2rem] p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-1">
+                    Randevu Al Butonu
+                  </h2>
+                  <p className="text-xs text-black/50">
+                    Açarsan profilde “📅 Randevu Al” görünür; ziyaretçi tek
+                    dokunuşla WhatsApp’tan sana randevu mesajı gönderir.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={showAppt}
+                  onClick={() => setShowAppt((v) => !v)}
+                  className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
+                    showAppt ? "bg-[#141416]" : "bg-black/15"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-all ${
+                      showAppt ? "left-6" : "left-1"
+                    }`}
+                  />
+                </button>
+              </div>
+              {showAppt && !formData.whatsapp?.trim() && (
+                <p className="text-xs text-red-600 mt-3">
+                  ⚠️ Çalışması için yukarıda WhatsApp numaranı gir.
+                </p>
+              )}
+            </div>
+          </motion.div>
+
           {/* 3) Görseller — Profil Fotografi */}
           <motion.div variants={cardVariants} className="neon-border">
             <div className="glass rounded-[2rem] p-6 flex flex-col items-center">
@@ -734,6 +780,7 @@ export default function EditPage({
                   setTheme(originalTheme);
                   setSocialLinks(JSON.parse(originalSocial));
                   setAddresses(JSON.parse(originalAddresses));
+                  setShowAppt(originalShowAppt);
                 }}
                 disabled={!hasChanges}
                 className="glass-soft px-5 py-3.5 rounded-xl text-black/70 hover:text-black font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed"

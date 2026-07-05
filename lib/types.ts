@@ -18,6 +18,7 @@ export interface Profile {
   iban?: string | null;
   address?: string | null;
   addresses?: AddressItem[] | null;
+  show_appointment?: boolean | null;
   owner_id?: string | null;
   owner_email?: string | null;
   theme?: ThemeKey | null;

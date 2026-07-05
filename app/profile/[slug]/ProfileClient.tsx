@@ -31,6 +31,7 @@ import {
   FaUserPlus,
   FaChartLine,
   FaGlobe,
+  FaCalendarCheck,
 } from "react-icons/fa";
 
 function normalizeUrl(url: string) {
@@ -171,6 +172,14 @@ export default function ProfileClient({
 
   // Geçerli web sitesi adı (yoksa/geçersizse satır gösterilmez)
   const website = profile.website ? siteName(profile.website) : null;
+
+  // Randevu Al (WhatsApp): açıksa ve numara varsa hazır mesajla WhatsApp'ı açar
+  const apptHref =
+    profile.show_appointment && profile.whatsapp
+      ? `https://wa.me/${profile.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
+          "Merhaba, sizden randevu almak istiyorum."
+        )}`
+      : null;
 
   const quickActions = [
     profile.phone
@@ -363,6 +372,23 @@ export default function ProfileClient({
                 <span>Rehbere Kaydet</span>
               </motion.button>
             </motion.div>
+
+            {/* Randevu Al — WhatsApp üzerinden (opsiyonel) */}
+            {apptHref && (
+              <motion.div variants={itemVariants} className="px-8 pb-4 -mt-1">
+                <motion.a
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  href={apptHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="glass-soft w-full rounded-2xl py-3.5 px-4 font-semibold text-sm flex items-center justify-center gap-2 text-[#1d1d1f] hover:bg-black/[0.03] transition-colors"
+                >
+                  <FaCalendarCheck style={{ color: "var(--accent)" }} />
+                  <span>Randevu Al</span>
+                </motion.a>
+              </motion.div>
+            )}
 
             {/* Hızlı iletişim — asıl niyet, en üstte */}
             {quickActions.length > 0 && (
