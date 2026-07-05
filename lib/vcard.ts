@@ -122,7 +122,8 @@ export async function buildVCard(p: Profile): Promise<string> {
       );
     }
   }
-  if (p.iban) lines.push(`NOTE:IBAN: ${esc(p.iban)}`);
+  // IBAN bilerek vCard'a EKLENMEZ: iletişim değil ödeme bilgisi; profilde
+  // kopyalanabilir kalır ama herkesin rehberine gömülmesi doğru değil.
 
   if (p.avatar_url) {
     const photo = await fetchPhotoBase64(p.avatar_url);

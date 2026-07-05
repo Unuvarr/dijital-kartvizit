@@ -430,12 +430,21 @@ export default function ProfileClient({
           </div>
         </motion.div>
 
-        <div className="text-center mt-4">
+        <div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-black/35">
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold tracking-tight text-black/45 hover:text-black/70 transition-colors"
+          >
+            Rity Card
+          </a>
+          <span className="text-black/20">·</span>
           <a
             href="/gizlilik"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] text-black/30 hover:text-black/55 transition-colors"
+            className="hover:text-black/60 transition-colors"
           >
             Gizlilik
           </a>
