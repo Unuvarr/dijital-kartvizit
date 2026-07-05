@@ -479,7 +479,7 @@ export default function EditPage({
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-white border border-black/10 text-[#1d1d1f] hover:bg-black/[0.03] transition-colors"
               >
-                <FaWhatsapp className="text-[#25D366]" /> WhatsApp'ta paylaş
+                <FaWhatsapp className="text-[#25D366]" /> WhatsApp ile paylaş
               </a>
             </div>
           </motion.div>
