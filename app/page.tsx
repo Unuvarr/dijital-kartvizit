@@ -35,7 +35,7 @@ export default function Home() {
         </div>
 
         <a
-          href="mailto:unuvaremir92@gmail.com"
+          href="mailto:destek@ritycard.one"
           className="btn-neon inline-flex items-center justify-center px-7 py-3 rounded-xl text-white font-semibold text-sm"
         >
           İletişime Geç

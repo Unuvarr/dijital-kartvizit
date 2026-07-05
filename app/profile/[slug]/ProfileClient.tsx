@@ -306,18 +306,20 @@ export default function ProfileClient({
                 )}
               </div>
 
-              <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f] break-words">
+              <h1 className="text-3xl font-bold tracking-tight leading-tight text-[#1d1d1f] break-words">
                 {profile.first_name} {profile.last_name}
               </h1>
               {(profile.title || profile.company) && (
-                <p className="text-sm mt-1.5 text-black/50">
+                <p className="text-[15px] mt-2 text-black/55 font-medium">
                   {profile.title}
                   {profile.title && profile.company ? " · " : ""}
                   {profile.company}
                 </p>
               )}
               {profile.phone && (
-                <p className="text-sm text-black/45 mt-1">{profile.phone}</p>
+                <p className="text-sm text-black/40 mt-1.5 tabular-nums">
+                  {profile.phone}
+                </p>
               )}
             </motion.div>
 
@@ -378,7 +380,7 @@ export default function ProfileClient({
                       target={href.startsWith("http") ? "_blank" : undefined}
                       rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
                       whileHover={{ scale: 1.04, y: -2 }}
-                      whileTap={{ scale: 0.96 }}
+                      whileTap={{ scale: 0.93, y: 1 }}
                       className="glass-soft rounded-2xl py-3.5 flex flex-col items-center justify-center gap-1.5 text-black/70 hover:text-[#1d1d1f] hover:bg-black/[0.03] transition-colors"
                     >
                       <Icon className="text-base" />
@@ -479,7 +481,7 @@ export default function ProfileClient({
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 220, damping: 22 }}
+              transition={{ type: "spring", stiffness: 190, damping: 24, mass: 0.9 }}
               className="relative"
             >
               <Image
@@ -517,7 +519,7 @@ export default function ProfileClient({
               initial={{ scale: 0.85, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.85, opacity: 0, y: 20 }}
-              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              transition={{ type: "spring", stiffness: 180, damping: 24, mass: 0.9 }}
             >
               <div className="glass rounded-[1.75rem] p-8 text-center relative">
                 <button
@@ -574,7 +576,7 @@ export default function ProfileClient({
               initial={{ scale: 0.85, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.85, opacity: 0, y: 20 }}
-              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              transition={{ type: "spring", stiffness: 180, damping: 24, mass: 0.9 }}
             >
               <div className="glass rounded-[1.75rem] p-8 text-center relative">
                 <button

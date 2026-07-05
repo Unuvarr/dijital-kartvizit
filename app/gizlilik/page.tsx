@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 // İletişim e-postanı buraya yaz (gerçek, ulaşılabilir bir adres olmalı).
-const CONTACT_EMAIL = "unuvaremir92@gmail.com";
+const CONTACT_EMAIL = "destek@ritycard.one";
 const LAST_UPDATED = "16 Haziran 2026";
 
 export default function GizlilikPage() {
