@@ -111,7 +111,7 @@ export default function LeadCaptureModal({
 
               {done ? (
                 <div className="text-center py-4">
-                  <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-emerald-500/15 text-emerald-600 flex items-center justify-center text-2xl">
+                  <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-black/[0.05] text-[#141416] flex items-center justify-center text-2xl">
                     <FaCheck />
                   </div>
                   <h3 className="text-lg font-semibold mb-1">Teşekkürler!</h3>

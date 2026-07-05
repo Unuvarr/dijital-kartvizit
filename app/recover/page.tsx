@@ -154,12 +154,12 @@ export default function RecoverPage() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="p-5 rounded-xl border border-emerald-500/30 bg-emerald-500/[0.08] text-center"
+                className="p-5 rounded-xl border border-black/[0.10] bg-black/[0.03] text-center"
               >
-                <p className="text-emerald-600 font-semibold">
+                <p className="text-[#1d1d1f] font-semibold">
                   📧 Link gönderildi!
                 </p>
-                <p className="text-emerald-700/70 text-sm mt-1">
+                <p className="text-black/60 text-sm mt-1">
                   E-postandaki bağlantıya tıkla, otomatik olarak kartının
                   düzenleme sayfasına yönlendirileceksin.
                 </p>

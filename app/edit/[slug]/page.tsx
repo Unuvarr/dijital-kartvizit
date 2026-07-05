@@ -434,12 +434,12 @@ export default function EditPage({
         {isNew && (
           <motion.div
             variants={itemVariants}
-            className="mb-6 p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.07]"
+            className="mb-6 p-4 rounded-2xl border border-black/[0.10] bg-black/[0.03]"
           >
-            <p className="text-sm font-semibold text-emerald-700 mb-0.5">
+            <p className="text-sm font-semibold text-[#1d1d1f] mb-0.5">
               🎉 Kartın oluştu ve yayında!
             </p>
-            <p className="text-xs text-emerald-700/80">
+            <p className="text-xs text-black/60">
               Fotoğraf, sosyal medya ve tema ekleyerek tamamla. İstersen şimdi,
               istersen sonra — değişiklikleri kaydetmeyi unutma.
             </p>
@@ -453,10 +453,10 @@ export default function EditPage({
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="mb-6 p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/[0.08] flex items-center gap-3"
+              className="mb-6 p-4 rounded-xl border border-black/[0.10] bg-black/[0.03] flex items-center gap-3"
             >
-              <FaCheck className="text-emerald-500 text-xl" />
-              <p className="text-emerald-600 font-semibold">
+              <FaCheck className="text-[#141416] text-xl" />
+              <p className="text-[#1d1d1f] font-semibold">
                 Değişiklikler kaydedildi! ✓
               </p>
             </motion.div>

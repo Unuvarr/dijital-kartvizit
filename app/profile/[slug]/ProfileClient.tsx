@@ -593,7 +593,7 @@ export default function ProfileClient({
                   >
                     {copied === "address" ? (
                       <>
-                        <FaCheck className="text-sm text-emerald-500" />
+                        <FaCheck className="text-sm text-[#141416]" />
                         <span>Kopyalandı</span>
                       </>
                     ) : (
@@ -667,7 +667,7 @@ function ContactRow({
         </div>
       </div>
       {copied ? (
-        <FaCheck className="text-emerald-500 text-sm flex-shrink-0" />
+        <FaCheck className="text-[#141416] text-sm flex-shrink-0" />
       ) : copyable ? (
         <FaCopy className="text-black/35 text-xs flex-shrink-0" />
       ) : external ? (
