@@ -30,6 +30,7 @@ import {
   FaMapMarkedAlt,
   FaUserPlus,
   FaChartLine,
+  FaGlobe,
 } from "react-icons/fa";
 
 function normalizeUrl(url: string) {
@@ -49,6 +50,23 @@ function siteName(url: string): string | null {
   host = host.replace(/^www\./, "").toLocaleLowerCase("tr-TR");
   // Geçerli alan adı değilse (nokta içermiyor, ör. "https") gösterme
   return host.includes(".") ? host : null;
+}
+
+/** Site logosu (favicon). Temiz domain'den çeker; yüklenemezse globe gösterir. */
+function Favicon({ domain }: { domain: string }) {
+  const [err, setErr] = useState(false);
+  if (err) return <FaGlobe className="text-black/50" />;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(
+        domain
+      )}`}
+      alt=""
+      className="w-4 h-4 object-contain"
+      onError={() => setErr(true)}
+    />
+  );
 }
 
 export default function ProfileClient({
@@ -375,19 +393,7 @@ export default function ProfileClient({
             <div className="px-6 pb-5 space-y-2.5">
               {website && profile.website && (
                 <ContactRow
-                  icon={
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={`https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(
-                        profile.website
-                      )}`}
-                      alt=""
-                      className="w-4 h-4 object-contain"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                  }
+                  icon={<Favicon domain={website} />}
                   label="Web Sitesi"
                   value={website}
                   href={normalizeUrl(profile.website)}
