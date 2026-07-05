@@ -220,7 +220,7 @@ export default function RegisterPage({
                 type="tel"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="0555..."
+                placeholder="05XX XXX XX XX"
                 required
               />
               <Field

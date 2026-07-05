@@ -40,6 +40,9 @@ export function buildSocialHref(link: SocialLink): string {
   let v = (link.value || "").trim();
   if (!v) return "#";
 
+  // Güvenlik: tehlikeli şemaları reddet (javascript:, data:, vbscript:)
+  if (/^\s*(javascript|data|vbscript):/i.test(v)) return "#";
+
   // WhatsApp ozel: telefon ise wa.me'ye cevir
   if (link.platform === "whatsapp" && !/^https?:\/\//i.test(v)) {
     const digits = v.replace(/\D/g, "");

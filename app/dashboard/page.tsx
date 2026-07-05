@@ -124,7 +124,7 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-bold neon-text">Kartlarım</h1>
           </div>
           <p className="text-sm text-black/55 mt-1">
-            Tüm kartların, görüntülenme ve gelen iletişimler tek yerde.
+            Tüm kartların, okutulma sayısı ve bırakılan bilgiler tek yerde.
           </p>
         </motion.div>
 

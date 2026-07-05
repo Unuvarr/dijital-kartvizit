@@ -703,7 +703,12 @@ export default function EditPage({
             <div className="glass rounded-2xl p-2 flex gap-2 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)]">
               <button
                 type="button"
-                onClick={() => setFormData(originalData || formData)}
+                onClick={() => {
+                  setFormData(originalData || formData);
+                  setTheme(originalTheme);
+                  setSocialLinks(JSON.parse(originalSocial));
+                  setAddresses(JSON.parse(originalAddresses));
+                }}
                 disabled={!hasChanges}
                 className="glass-soft px-5 py-3.5 rounded-xl text-black/70 hover:text-black font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed"
               >

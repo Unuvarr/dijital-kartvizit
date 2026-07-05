@@ -288,7 +288,7 @@ export default function ProfileClient({
                 )}
               </div>
 
-              <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f]">
+              <h1 className="text-2xl font-semibold tracking-tight text-[#1d1d1f] break-words">
                 {profile.first_name} {profile.last_name}
               </h1>
               {(profile.title || profile.company) && (
