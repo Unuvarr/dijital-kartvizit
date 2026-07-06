@@ -398,8 +398,8 @@ export default function EditPage({
   const fieldPlaceholders: { [key: string]: string } = {
     first_name: "Ad",
     last_name: "Soyad",
-    title: "ör. Emlak Danışmanı",
-    company: "ör. Ribank Gayrimenkul",
+    title: "",
+    company: "",
     phone: "05XX XXX XX XX",
     email: "ornek@email.com",
     whatsapp: "05XX XXX XX XX",
