@@ -37,32 +37,3 @@ export async function trackView(slug: string): Promise<number | null> {
 
   return typeof data === "number" ? data : null;
 }
-
-export interface CardViewRow {
-  viewed_at: string;
-  referrer: string | null;
-  user_agent: string | null;
-}
-
-/** Sahibinin paneli icin: son N gunluk gorunumler. */
-export async function fetchViewSeries(
-  cardId: string,
-  days = 14
-): Promise<CardViewRow[]> {
-  const since = new Date();
-  since.setDate(since.getDate() - days);
-
-  const { data, error } = await supabase
-    .from("card_views")
-    .select("viewed_at, referrer, user_agent")
-    .eq("card_id", cardId)
-    .gte("viewed_at", since.toISOString())
-    .order("viewed_at", { ascending: false })
-    .limit(500);
-
-  if (error) {
-    console.warn("fetchViewSeries failed:", error.message);
-    return [];
-  }
-  return (data as CardViewRow[]) || [];
-}
