@@ -19,10 +19,6 @@ export const SOCIAL_PLATFORMS: SocialPlatformMeta[] = [
   { key: "youtube", label: "YouTube", color: "#FF0000", placeholder: "kanal linki" },
   { key: "tiktok", label: "TikTok", color: "#000000", base: "https://tiktok.com/@", strip: "@", placeholder: "kullanıcı adı" },
   { key: "telegram", label: "Telegram", color: "#26A5E4", base: "https://t.me/", strip: "@", placeholder: "kullanıcı adı" },
-  { key: "spotify", label: "Spotify", color: "#1DB954", placeholder: "profil/sanatçı linki" },
-  { key: "pinterest", label: "Pinterest", color: "#E60023", base: "https://pinterest.com/", placeholder: "kullanıcı adı" },
-  { key: "snapchat", label: "Snapchat", color: "#C7A500", base: "https://snapchat.com/add/", strip: "@", placeholder: "kullanıcı adı" },
-  { key: "github", label: "GitHub", color: "#181717", base: "https://github.com/", placeholder: "kullanıcı adı" },
   { key: "custom", label: "Özel link", color: "#6e6e73", placeholder: "https://..." },
 ];
 
