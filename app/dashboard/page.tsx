@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { getCurrentUserId } from "@/lib/auth";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
-import { FaUserPlus, FaIdCard, FaArrowLeft, FaRedo, FaTrashAlt, FaCalendarCheck } from "react-icons/fa";
+import { FaUserPlus, FaIdCard, FaArrowLeft, FaRedo, FaTrashAlt } from "react-icons/fa";
 import type { Profile } from "@/lib/types";
 
 interface LeadRow {
@@ -21,23 +21,11 @@ interface LeadRow {
   message: string | null;
 }
 
-interface ApptRow {
-  id: number;
-  card_id: string;
-  date: string;
-  visitor_name: string;
-  visitor_phone: string | null;
-  note: string | null;
-  status: string;
-  created_at: string;
-}
-
 export default function DashboardPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [cards, setCards] = useState<Profile[]>([]);
   const [leads, setLeads] = useState<LeadRow[]>([]);
-  const [appts, setAppts] = useState<ApptRow[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -63,14 +51,6 @@ export default function DashboardPage() {
           .order("created_at", { ascending: false })
           .limit(50);
         setLeads((allLeads as LeadRow[]) || []);
-
-        const { data: allAppts } = await supabase
-          .from("appointments")
-          .select("*")
-          .in("card_id", ids)
-          .order("date", { ascending: true })
-          .limit(100);
-        setAppts((allAppts as ApptRow[]) || []);
       }
 
       setCards(list);
@@ -97,24 +77,6 @@ export default function DashboardPage() {
     if (!confirm("Bu kişiyi listeden silmek istiyor musun?")) return;
     const { error } = await supabase.from("card_leads").delete().eq("id", id);
     if (!error) setLeads((prev) => prev.filter((l) => l.id !== id));
-  }
-
-  // Randevu durumu güncelle (onayla / iptal)
-  async function setApptStatus(id: number, status: string) {
-    const { error } = await supabase
-      .from("appointments")
-      .update({ status })
-      .eq("id", id);
-    if (!error) {
-      setAppts((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, status } : a))
-      );
-    }
-  }
-  async function deleteAppt(id: number) {
-    if (!confirm("Bu randevuyu silmek istiyor musun?")) return;
-    const { error } = await supabase.from("appointments").delete().eq("id", id);
-    if (!error) setAppts((prev) => prev.filter((a) => a.id !== id));
   }
 
   if (loading) {
@@ -224,83 +186,6 @@ export default function DashboardPage() {
             </motion.div>
           ))}
         </motion.div>
-
-        {/* Randevu Talepleri */}
-        {appts.length > 0 && (
-          <motion.div variants={itemVariants} className="neon-border">
-            <div className="glass rounded-2xl p-5">
-              <h2 className="font-semibold mb-3 flex items-center gap-2">
-                <FaCalendarCheck />
-                <span>Randevu Talepleri</span>
-              </h2>
-              <div className="space-y-2">
-                {appts.map((a) => (
-                  <div key={a.id} className="glass-soft rounded-xl p-3 text-sm">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="font-medium">{a.visitor_name}</p>
-                        <p className="text-xs text-black/55 mt-0.5">
-                          📅{" "}
-                          {new Date(
-                            `${a.date}T00:00:00`
-                          ).toLocaleDateString("tr-TR", {
-                            weekday: "long",
-                            day: "numeric",
-                            month: "long",
-                          })}
-                          {a.visitor_phone ? ` · 📞 ${a.visitor_phone}` : ""}
-                        </p>
-                      </div>
-                      <span
-                        className={`text-[10px] font-semibold px-2 py-1 rounded-full flex-shrink-0 ${
-                          a.status === "onaylandı"
-                            ? "bg-[#141416] text-white"
-                            : a.status === "iptal"
-                            ? "bg-red-500/[0.08] text-red-600"
-                            : "bg-black/[0.06] text-black/55"
-                        }`}
-                      >
-                        {a.status}
-                      </span>
-                    </div>
-                    {a.note && (
-                      <p className="text-xs text-black/65 mt-2 italic">
-                        “{a.note}”
-                      </p>
-                    )}
-                    <div className="flex items-center gap-3 mt-2.5 text-xs">
-                      {a.status !== "onaylandı" && (
-                        <button
-                          type="button"
-                          onClick={() => setApptStatus(a.id, "onaylandı")}
-                          className="font-semibold text-[#141416] hover:underline"
-                        >
-                          ✓ Onayla
-                        </button>
-                      )}
-                      {a.status !== "iptal" && (
-                        <button
-                          type="button"
-                          onClick={() => setApptStatus(a.id, "iptal")}
-                          className="text-black/50 hover:text-black"
-                        >
-                          İptal
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => deleteAppt(a.id)}
-                        className="text-black/40 hover:text-red-600 ml-auto"
-                      >
-                        Sil
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
 
         {/* Gelen Leadler */}
         <motion.div variants={itemVariants} className="neon-border">

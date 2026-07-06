@@ -76,28 +76,12 @@ export default function EditPage({
   const [originalSocial, setOriginalSocial] = useState<string>("[]");
   const [addresses, setAddresses] = useState<AddressItem[]>([]);
   const [originalAddresses, setOriginalAddresses] = useState<string>("[]");
-  const [showAppt, setShowAppt] = useState(false);
-  const [originalShowAppt, setOriginalShowAppt] = useState(false);
-  const [apptDays, setApptDays] = useState<number[]>([]);
-  const [originalApptDays, setOriginalApptDays] = useState<string>("[]");
   const [linkCopied, setLinkCopied] = useState(false);
   const shareUrl = `https://ritycard.one/${slug}`;
   const copyShareLink = () => {
     navigator.clipboard.writeText(shareUrl);
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
-  };
-  // Boş dizi = tüm günler. İlk tıklamada tümünü aç, sonra o günü çıkar/ekle.
-  const apptDayOn = (d: number) =>
-    apptDays.length === 0 ? true : apptDays.includes(d);
-  const toggleApptDay = (d: number) => {
-    setApptDays((prev) => {
-      const base = prev.length === 0 ? [0, 1, 2, 3, 4, 5, 6] : prev;
-      const next = base.includes(d)
-        ? base.filter((x) => x !== d)
-        : [...base, d];
-      return next.sort((a, b) => a - b);
-    });
   };
   // Kayittan yeni gelindiyse karsilama bandi goster
   const [isNew] = useState(
@@ -173,13 +157,6 @@ export default function EditPage({
             }
             setAddresses(addrs);
             setOriginalAddresses(JSON.stringify(addrs));
-
-            const appt = !!data.show_appointment;
-            setShowAppt(appt);
-            setOriginalShowAppt(appt);
-            const ad = (data.appointment_days as number[] | null) || [];
-            setApptDays(ad);
-            setOriginalApptDays(JSON.stringify(ad));
           } else {
             setError("Bu kartı düzenlemek için izniniz yok");
           }
@@ -291,8 +268,6 @@ export default function EditPage({
           addresses: cleanAddresses,
           // Geriye uyumluluk: eski tek "address" kolonu ilk adresle dolu kalsın
           address: cleanAddresses[0]?.value || null,
-          show_appointment: showAppt,
-          appointment_days: apptDays.length === 7 ? [] : apptDays,
           theme,
         })
         .eq("slug", slug);
@@ -312,8 +287,6 @@ export default function EditPage({
       setOriginalSocial(JSON.stringify(socialLinks));
       setAddresses(cleanAddresses);
       setOriginalAddresses(JSON.stringify(cleanAddresses));
-      setOriginalShowAppt(showAppt);
-      setOriginalApptDays(JSON.stringify(apptDays.length === 7 ? [] : apptDays));
 
       setTimeout(() => {
         setSuccess(false);
@@ -388,9 +361,7 @@ export default function EditPage({
     coverUrl !== originalCoverUrl ||
     theme !== originalTheme ||
     JSON.stringify(socialLinks) !== originalSocial ||
-    JSON.stringify(addresses) !== originalAddresses ||
-    showAppt !== originalShowAppt ||
-    JSON.stringify(apptDays.length === 7 ? [] : apptDays) !== originalApptDays;
+    JSON.stringify(addresses) !== originalAddresses;
 
   const fieldGroups = [
     {
@@ -618,76 +589,6 @@ export default function EditPage({
             </div>
           </motion.div>
 
-          {/* Randevu sistemi aç/kapa + müsait günler */}
-          <motion.div variants={cardVariants} className="neon-border">
-            <div className="glass rounded-[2rem] p-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-1">
-                    Randevu Sistemi
-                  </h2>
-                  <p className="text-xs text-black/50">
-                    Açarsan profilde “📅 Randevu Al” görünür; ziyaretçi uygun bir
-                    gün seçip talep bırakır, sana e-posta gelir.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={showAppt}
-                  onClick={() => setShowAppt((v) => !v)}
-                  className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
-                    showAppt ? "bg-[#141416]" : "bg-black/15"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-all ${
-                      showAppt ? "left-6" : "left-1"
-                    }`}
-                  />
-                </button>
-              </div>
-
-              {showAppt && (
-                <div className="mt-5">
-                  <p className="text-xs text-black/45 mb-2">
-                    Randevu alınabilecek günler
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      { d: 1, l: "Pzt" },
-                      { d: 2, l: "Sal" },
-                      { d: 3, l: "Çar" },
-                      { d: 4, l: "Per" },
-                      { d: 5, l: "Cum" },
-                      { d: 6, l: "Cmt" },
-                      { d: 0, l: "Paz" },
-                    ].map(({ d, l }) => {
-                      const on = apptDayOn(d);
-                      return (
-                        <button
-                          key={d}
-                          type="button"
-                          onClick={() => toggleApptDay(d)}
-                          className={`w-11 h-10 rounded-xl text-xs font-semibold border transition-colors ${
-                            on
-                              ? "bg-[#141416] text-white border-transparent"
-                              : "border-black/10 text-black/50 hover:bg-black/[0.03]"
-                          }`}
-                        >
-                          {l}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <p className="text-[11px] text-black/40 mt-2">
-                    Kapalı günler ziyaretçiye gösterilmez.
-                  </p>
-                </div>
-              )}
-            </div>
-          </motion.div>
-
           {/* 3) Görseller — Profil Fotografi */}
           <motion.div variants={cardVariants} className="neon-border">
             <div className="glass rounded-[2rem] p-6 flex flex-col items-center">
@@ -833,8 +734,6 @@ export default function EditPage({
                   setTheme(originalTheme);
                   setSocialLinks(JSON.parse(originalSocial));
                   setAddresses(JSON.parse(originalAddresses));
-                  setShowAppt(originalShowAppt);
-                  setApptDays(JSON.parse(originalApptDays));
                 }}
                 disabled={!hasChanges}
                 className="glass-soft px-5 py-3.5 rounded-xl text-black/70 hover:text-black font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed"

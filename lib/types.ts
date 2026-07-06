@@ -18,8 +18,6 @@ export interface Profile {
   iban?: string | null;
   address?: string | null;
   addresses?: AddressItem[] | null;
-  show_appointment?: boolean | null;
-  appointment_days?: number[] | null; // 0=Pazar..6=Cumartesi; boş=tüm günler
   owner_id?: string | null;
   owner_email?: string | null;
   theme?: ThemeKey | null;

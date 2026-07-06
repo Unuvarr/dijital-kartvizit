@@ -12,7 +12,6 @@ import { themeStyle, type Profile, type SocialLink, type AddressItem } from "@/l
 import { buildSocialHref, platformMeta, socialLabel } from "@/lib/socials";
 import BrandedQR from "@/components/BrandedQR";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
-import AppointmentModal from "@/components/AppointmentModal";
 import SocialIcon from "@/components/SocialIcon";
 import {
   FaDownload,
@@ -32,7 +31,6 @@ import {
   FaUserPlus,
   FaChartLine,
   FaGlobe,
-  FaCalendarCheck,
 } from "react-icons/fa";
 
 function normalizeUrl(url: string) {
@@ -83,7 +81,6 @@ export default function ProfileClient({
   const [copied, setCopied] = useState<string | null>(null);
   const [showQR, setShowQR] = useState(false);
   const [showLead, setShowLead] = useState(false);
-  const [showAppointment, setShowAppointment] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);
   const [addressModal, setAddressModal] = useState<AddressItem | null>(null);
   const [profileUrl] = useState(() =>
@@ -175,8 +172,6 @@ export default function ProfileClient({
   // Geçerli web sitesi adı (yoksa/geçersizse satır gösterilmez)
   const website = profile.website ? siteName(profile.website) : null;
 
-  // Randevu: açıksa profilde "Randevu Al" tonal butonu görünür, modal açar
-  const canBook = !!profile.show_appointment;
 
   const quickActions = [
     profile.phone
@@ -370,24 +365,6 @@ export default function ProfileClient({
               </motion.button>
             </motion.div>
 
-            {/* Randevu Al — tonal ikincil CTA, modal açar */}
-            {canBook && (
-              <motion.div variants={itemVariants} className="px-8 pb-4 -mt-1">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowAppointment(true)}
-                  className="w-full rounded-2xl py-3 px-4 text-sm font-semibold flex items-center justify-center gap-2 transition-[filter] hover:brightness-95"
-                  style={{
-                    backgroundColor: "var(--accent-soft)",
-                    color: "var(--accent)",
-                  }}
-                >
-                  <FaCalendarCheck className="text-sm" />
-                  <span>Randevu Al</span>
-                </motion.button>
-              </motion.div>
-            )}
 
             {/* Hızlı iletişim — asıl niyet, en üstte */}
             {quickActions.length > 0 && (
@@ -664,14 +641,6 @@ export default function ProfileClient({
         onClose={() => setShowLead(false)}
         cardId={profile.id}
         cardOwnerName={`${profile.first_name} ${profile.last_name}`}
-      />
-
-      <AppointmentModal
-        open={showAppointment}
-        onClose={() => setShowAppointment(false)}
-        cardId={profile.id}
-        cardOwnerName={`${profile.first_name} ${profile.last_name}`}
-        days={profile.appointment_days || []}
       />
     </div>
   );
