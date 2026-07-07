@@ -163,6 +163,10 @@ export default function RecoverPage() {
                   E-postandaki bağlantıya tıkla, otomatik olarak kartının
                   düzenleme sayfasına yönlendirileceksin.
                 </p>
+                <p className="text-black/45 text-xs mt-3">
+                  📬 Gelen kutusunda yoksa <b>spam/gereksiz</b> klasörünü kontrol
+                  et. Linki, kartı kullanacağın telefonun normal tarayıcısında aç.
+                </p>
               </motion.div>
             ) : (
               <motion.form

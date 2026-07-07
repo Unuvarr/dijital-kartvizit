@@ -482,6 +482,12 @@ export default function EditPage({
                 <FaWhatsapp className="text-[#25D366]" /> WhatsApp ile paylaş
               </a>
             </div>
+            <p className="text-[11px] text-black/45 mt-3">
+              💡 İpucu: Kartın bu tarayıcıya bağlandı. Instagram/kamera içindeki
+              geçici tarayıcıdaysan, kartını normal tarayıcında (Safari/Chrome)
+              da bir kez aç — erişimin garantide olsun. Gerekirse
+              &quot;Erişimi Geri Al&quot; ile e-postanla her zaman bağlanabilirsin.
+            </p>
           </motion.div>
         )}
 
