@@ -56,7 +56,12 @@ export async function POST(req: Request) {
   });
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    // Ham Supabase hatasını sızdırma (enumeration/iç durum ipucu önlemi)
+    console.error("recover signInWithOtp error:", error.message);
+    return Response.json(
+      { error: "Şu an gönderilemedi, biraz sonra tekrar dene." },
+      { status: 500 }
+    );
   }
 
   return Response.json({ ok: true });

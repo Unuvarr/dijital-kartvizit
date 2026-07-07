@@ -5,8 +5,16 @@ import { supabase } from "./supabaseClient";
  * Dosya adi slug'a gore benzersiz tutulur (uzerine yazilabilir).
  */
 export async function uploadAvatar(slug: string, file: File): Promise<string> {
+  // Dosyalar sahibin uid klasörüne yazılır. RLS bu klasöre yalnız sahibin
+  // yazmasına izin verir → başkası kimsenin avatarını üzerine yazamaz (defacement önlemi).
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const uid = user?.id;
+  if (!uid) throw new Error("Oturum bulunamadı, sayfayı yenileyip tekrar dene.");
+
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `${slug}-${Date.now()}.${ext}`;
+  const path = `${uid}/${slug}-${Date.now()}.${ext}`;
 
   const { error } = await supabase.storage
     .from("avatars")

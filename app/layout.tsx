@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dijital Kartvizit",
+  metadataBase: new URL("https://ritycard.one"),
+  title: "Rity Card — Akıllı Dijital Kartvizit",
   description: "Profesyonel dijital kartvizit",
 };
 
