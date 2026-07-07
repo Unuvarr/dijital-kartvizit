@@ -82,7 +82,7 @@ export default function ProfileClient({
   const [showQR, setShowQR] = useState(false);
   const [showLead, setShowLead] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);
-  const [addressModal, setAddressModal] = useState<AddressItem | null>(null);
+  const [showAddresses, setShowAddresses] = useState(false);
   const [profileUrl] = useState(() =>
     typeof window !== "undefined" ? window.location.href : ""
   );
@@ -413,14 +413,13 @@ export default function ProfileClient({
                   copied={copied === "iban"}
                 />
               )}
-              {addresses.map((addr, i) => (
+              {addresses.length > 0 && (
                 <ContactRow
-                  key={i}
                   icon={<FaMapMarkerAlt />}
                   label="Adres"
-                  onClick={() => setAddressModal(addr)}
+                  onClick={() => setShowAddresses(true)}
                 />
-              ))}
+              )}
             </div>
 
             {/* Lead capture — ikincil, aşağıda */}
@@ -562,12 +561,12 @@ export default function ProfileClient({
         )}
       </AnimatePresence>
 
-      {/* Adres */}
+      {/* Adresler — tek pop-up, tüm adresler listelenir */}
       <AnimatePresence>
-        {addressModal && (
+        {showAddresses && (
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-            onClick={() => setAddressModal(null)}
+            onClick={() => setShowAddresses(false)}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -580,55 +579,70 @@ export default function ProfileClient({
               exit={{ scale: 0.85, opacity: 0, y: 20 }}
               transition={{ type: "spring", stiffness: 180, damping: 24, mass: 0.9 }}
             >
-              <div className="glass rounded-[1.75rem] p-8 text-center relative">
+              <div className="glass rounded-[1.75rem] p-7 relative max-h-[80vh] overflow-y-auto">
                 <button
-                  onClick={() => setAddressModal(null)}
+                  onClick={() => setShowAddresses(false)}
                   className="absolute top-4 right-4 text-black/40 hover:text-black transition"
                   aria-label="Kapat"
                 >
                   <FaTimes />
                 </button>
-                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center text-xl text-[#1d1d1f] glass-soft">
-                  <FaMapMarkerAlt />
+                <div className="text-center">
+                  <div className="w-14 h-14 mx-auto mb-3 rounded-2xl flex items-center justify-center text-xl text-[#1d1d1f] glass-soft">
+                    <FaMapMarkerAlt />
+                  </div>
+                  <h3 className="text-lg font-semibold text-[#1d1d1f]">
+                    {addresses.length > 1 ? "Adresler" : "Adres"}
+                  </h3>
                 </div>
-                <h3 className="text-lg font-semibold text-[#1d1d1f] mb-1">
-                  {addressModal.label?.trim() || "Adres"}
-                </h3>
-                <p className="text-sm text-black/70 break-words bg-black/[0.03] border border-black/[0.06] rounded-xl p-3 my-4">
-                  {addressModal.value}
-                </p>
-                <div className="space-y-3">
-                  <motion.a
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    href={`https://maps.google.com/?q=${encodeURIComponent(
-                      addressModal.value
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-3 btn-neon text-white rounded-xl font-medium flex items-center justify-center gap-2"
-                  >
-                    <FaMapMarkedAlt className="text-sm" />
-                    <span>Haritada Aç</span>
-                  </motion.a>
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => handleCopy(addressModal.value, "address")}
-                    className="w-full py-3 glass-soft text-[#1d1d1f] rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-black/[0.03] transition-colors"
-                  >
-                    {copied === "address" ? (
-                      <>
-                        <FaCheck className="text-sm text-[#141416]" />
-                        <span>Kopyalandı</span>
-                      </>
-                    ) : (
-                      <>
-                        <FaCopy className="text-sm" />
-                        <span>Adresi Kopyala</span>
-                      </>
-                    )}
-                  </motion.button>
+
+                <div className="mt-4 space-y-4">
+                  {addresses.map((addr, i) => (
+                    <div
+                      key={i}
+                      className="rounded-2xl border border-black/[0.06] bg-black/[0.02] p-3.5"
+                    >
+                      {addr.label?.trim() && (
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-black/45 mb-1.5">
+                          {addr.label}
+                        </p>
+                      )}
+                      <p className="text-sm text-black/75 break-words">
+                        {addr.value}
+                      </p>
+                      <div className="flex gap-2 mt-3">
+                        <motion.a
+                          whileTap={{ scale: 0.96 }}
+                          href={`https://maps.google.com/?q=${encodeURIComponent(
+                            addr.value
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 py-2 btn-neon text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5"
+                        >
+                          <FaMapMarkedAlt className="text-[11px]" />
+                          <span>Haritada Aç</span>
+                        </motion.a>
+                        <motion.button
+                          whileTap={{ scale: 0.96 }}
+                          onClick={() => handleCopy(addr.value, `addr-${i}`)}
+                          className="flex-1 py-2 glass-soft text-[#1d1d1f] rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-black/[0.03] transition-colors"
+                        >
+                          {copied === `addr-${i}` ? (
+                            <>
+                              <FaCheck className="text-[11px] text-[#141416]" />
+                              <span>Kopyalandı</span>
+                            </>
+                          ) : (
+                            <>
+                              <FaCopy className="text-[11px]" />
+                              <span>Kopyala</span>
+                            </>
+                          )}
+                        </motion.button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </motion.div>
