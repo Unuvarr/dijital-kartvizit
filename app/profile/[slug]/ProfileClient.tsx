@@ -52,6 +52,20 @@ function siteName(url: string): string | null {
   return host.includes(".") ? host : null;
 }
 
+/** Harita linki: iPhone/iPad'de Apple Haritalar uygulamasını, diğerlerinde Google Haritalar'ı açar. */
+function mapsHref(address: string): string {
+  const q = encodeURIComponent(address);
+  if (typeof navigator !== "undefined") {
+    const ua = navigator.userAgent;
+    const isIOS =
+      /iPhone|iPad|iPod/i.test(ua) ||
+      // Yeni iPad'ler kendini Mac olarak tanıtır; dokunmatik ekrandan ayırt et
+      (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+    if (isIOS) return `https://maps.apple.com/?q=${q}`;
+  }
+  return `https://maps.google.com/?q=${q}`;
+}
+
 /** Site logosu (favicon). Temiz domain'den çeker; yüklenemezse globe gösterir. */
 function Favicon({ domain }: { domain: string }) {
   const [err, setErr] = useState(false);
@@ -613,9 +627,7 @@ export default function ProfileClient({
                       <div className="flex gap-2 mt-3">
                         <motion.a
                           whileTap={{ scale: 0.96 }}
-                          href={`https://maps.google.com/?q=${encodeURIComponent(
-                            addr.value
-                          )}`}
+                          href={mapsHref(addr.value)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex-1 py-2 btn-neon text-white rounded-lg text-xs font-medium flex items-center justify-center gap-1.5"
