@@ -740,6 +740,14 @@ export default function EditPage({
                   setTheme(originalTheme);
                   setSocialLinks(JSON.parse(originalSocial));
                   setAddresses(JSON.parse(originalAddresses));
+                  // Görselleri de geri al: seçilmiş ama kaydedilmemiş
+                  // avatar/kapak sıfırlanmazsa "iptal edilen" görsel sonraki
+                  // kayıtta sessizce yüklenirdi
+                  setAvatarFile(null);
+                  setAvatarPreview(null);
+                  setCoverFile(null);
+                  setCoverPreview(null);
+                  setCoverUrl(originalCoverUrl);
                 }}
                 disabled={!hasChanges}
                 className="glass-soft px-5 py-3.5 rounded-xl text-black/70 hover:text-black font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed"

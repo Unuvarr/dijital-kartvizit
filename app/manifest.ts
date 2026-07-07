@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Dijital Kartvizit",
-    short_name: "Kartvizit",
-    description: "Profesyonel dijital kartvizit",
+    name: "Rity Card",
+    short_name: "Rity Card",
+    description: "Akıllı dijital kartvizit",
     start_url: "/dashboard",
     display: "standalone",
     background_color: "#f4f4f6",
