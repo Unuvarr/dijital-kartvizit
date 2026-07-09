@@ -12,7 +12,8 @@ import { THEMES, type ThemeKey, themeStyle } from "@/lib/types";
 import AvatarCropper from "@/components/AvatarCropper";
 import SocialLinksEditor from "@/components/SocialLinksEditor";
 import AddressesEditor from "@/components/AddressesEditor";
-import type { SocialLink, AddressItem } from "@/lib/types";
+import IbansEditor from "@/components/IbansEditor";
+import type { SocialLink, AddressItem, IbanItem } from "@/lib/types";
 import { sanitizeField, validateContactForm } from "@/lib/formSanitize";
 
 interface FormData {
@@ -76,6 +77,8 @@ export default function EditPage({
   const [originalSocial, setOriginalSocial] = useState<string>("[]");
   const [addresses, setAddresses] = useState<AddressItem[]>([]);
   const [originalAddresses, setOriginalAddresses] = useState<string>("[]");
+  const [ibans, setIbans] = useState<IbanItem[]>([]);
+  const [originalIbans, setOriginalIbans] = useState<string>("[]");
   const [linkCopied, setLinkCopied] = useState(false);
   const shareUrl = `https://ritycard.one/${slug}`;
   const copyShareLink = () => {
@@ -157,6 +160,14 @@ export default function EditPage({
             }
             setAddresses(addrs);
             setOriginalAddresses(JSON.stringify(addrs));
+
+            // IBAN'lar: yeni alan varsa onu kullan; yoksa eski tek "iban"ı taşı
+            let ibs: IbanItem[] = (data.ibans as IbanItem[] | null) || [];
+            if (ibs.length === 0 && data.iban) {
+              ibs = [{ label: "", value: data.iban }];
+            }
+            setIbans(ibs);
+            setOriginalIbans(JSON.stringify(ibs));
           } else {
             setError("Bu kartı düzenlemek için izniniz yok");
           }
@@ -250,6 +261,21 @@ export default function EditPage({
         }))
         .filter((a) => a.value);
 
+      // IBAN'ları temizle + doğrula (TR + 24 rakam)
+      const cleanIbans: IbanItem[] = ibans
+        .map((b) => ({
+          label: (b.label || "").trim().slice(0, 40),
+          value: (b.value || "").toUpperCase().replace(/\s/g, ""),
+        }))
+        .filter((b) => b.value);
+      for (const b of cleanIbans) {
+        if (!/^TR\d{24}$/.test(b.value)) {
+          setError("Geçerli bir IBAN gir (TR ile başlayıp 24 rakam içermeli)");
+          setSaving(false);
+          return;
+        }
+      }
+
       const { error: updateError } = await supabase
         .from("digital_cards")
         .update({
@@ -264,7 +290,9 @@ export default function EditPage({
           whatsapp: formData.whatsapp?.trim() || null,
           website: formData.website?.trim() || null,
           social_links: socialLinks.filter((l) => l.value && l.value.trim()),
-          iban: formData.iban?.trim() || null,
+          ibans: cleanIbans,
+          // Geriye uyumluluk: eski tek "iban" kolonu ilk IBAN ile dolu kalsın
+          iban: cleanIbans[0]?.value || null,
           addresses: cleanAddresses,
           // Geriye uyumluluk: eski tek "address" kolonu ilk adresle dolu kalsın
           address: cleanAddresses[0]?.value || null,
@@ -287,6 +315,8 @@ export default function EditPage({
       setOriginalSocial(JSON.stringify(socialLinks));
       setAddresses(cleanAddresses);
       setOriginalAddresses(JSON.stringify(cleanAddresses));
+      setIbans(cleanIbans);
+      setOriginalIbans(JSON.stringify(cleanIbans));
 
       setTimeout(() => {
         setSuccess(false);
@@ -361,7 +391,8 @@ export default function EditPage({
     coverUrl !== originalCoverUrl ||
     theme !== originalTheme ||
     JSON.stringify(socialLinks) !== originalSocial ||
-    JSON.stringify(addresses) !== originalAddresses;
+    JSON.stringify(addresses) !== originalAddresses ||
+    JSON.stringify(ibans) !== originalIbans;
 
   const fieldGroups = [
     {
@@ -374,7 +405,7 @@ export default function EditPage({
     },
     {
       title: "Ek Bilgiler",
-      fields: ["website", "iban"],
+      fields: ["website"],
     },
   ];
 
@@ -585,6 +616,16 @@ export default function EditPage({
             </div>
           </motion.div>
 
+          {/* IBAN'lar (birden fazla, etiketli) */}
+          <motion.div variants={cardVariants} className="neon-border">
+            <div className="glass rounded-[2rem] p-6">
+              <h2 className="text-sm font-semibold text-black/70 uppercase tracking-wide mb-6">
+                IBAN
+              </h2>
+              <IbansEditor value={ibans} onChange={setIbans} />
+            </div>
+          </motion.div>
+
           {/* 3) Sosyal Medya & Bağlantılar */}
           <motion.div variants={cardVariants} className="neon-border">
             <div className="glass rounded-[2rem] p-6">
@@ -740,6 +781,7 @@ export default function EditPage({
                   setTheme(originalTheme);
                   setSocialLinks(JSON.parse(originalSocial));
                   setAddresses(JSON.parse(originalAddresses));
+                  setIbans(JSON.parse(originalIbans));
                   // Görselleri de geri al: seçilmiş ama kaydedilmemiş
                   // avatar/kapak sıfırlanmazsa "iptal edilen" görsel sonraki
                   // kayıtta sessizce yüklenirdi

@@ -8,7 +8,13 @@ import { getCurrentUserId } from "@/lib/auth";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
 import { buildVCard } from "@/lib/vcard";
 import { trackView } from "@/lib/analytics";
-import { themeStyle, type Profile, type SocialLink, type AddressItem } from "@/lib/types";
+import {
+  themeStyle,
+  type Profile,
+  type SocialLink,
+  type AddressItem,
+  type IbanItem,
+} from "@/lib/types";
 import { buildSocialHref, platformMeta, socialLabel } from "@/lib/socials";
 import BrandedQR from "@/components/BrandedQR";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
@@ -97,6 +103,7 @@ export default function ProfileClient({
   const [showLead, setShowLead] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);
   const [showAddresses, setShowAddresses] = useState(false);
+  const [showIbans, setShowIbans] = useState(false);
   const [profileUrl] = useState(() =>
     typeof window !== "undefined" ? window.location.href : ""
   );
@@ -182,6 +189,19 @@ export default function ProfileClient({
       ? [{ value: profile.address }]
       : []
   ).filter((a) => a.value && a.value.trim());
+
+  // IBAN'lar: yeni çoklu alan varsa onu kullan; yoksa eski tek "iban"a düş
+  const ibans: IbanItem[] = (
+    profile.ibans && profile.ibans.length > 0
+      ? profile.ibans
+      : profile.iban
+      ? [{ value: profile.iban }]
+      : []
+  ).filter((b) => b.value && b.value.trim());
+
+  // IBAN'ı okunur biçimde göster: TR33 0006 1005 ...
+  const formatIban = (v: string) =>
+    v.replace(/\s/g, "").replace(/(.{4})/g, "$1 ").trim();
 
   // Geçerli web sitesi adı (yoksa/geçersizse satır gösterilmez)
   const website = profile.website ? siteName(profile.website) : null;
@@ -418,13 +438,11 @@ export default function ProfileClient({
                   external
                 />
               )}
-              {profile.iban && (
+              {ibans.length > 0 && (
                 <ContactRow
                   icon={<span className="font-semibold">₺</span>}
                   label="IBAN"
-                  copyable
-                  onClick={() => handleCopy(profile.iban, "iban")}
-                  copied={copied === "iban"}
+                  onClick={() => setShowIbans(true)}
                 />
               )}
               {addresses.length > 0 && (
@@ -650,6 +668,77 @@ export default function ProfileClient({
                               <FaCopy className="text-[11px]" />
                               <span>Kopyala</span>
                             </>
+                          )}
+                        </motion.button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* IBAN'lar — tek pop-up, her birinin yanında kopyala */}
+      <AnimatePresence>
+        {showIbans && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+            onClick={() => setShowIbans(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="neon-border max-w-xs w-full"
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.85, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.85, opacity: 0, y: 20 }}
+              transition={{ type: "spring", stiffness: 180, damping: 24, mass: 0.9 }}
+            >
+              <div className="glass rounded-[1.75rem] p-7 relative max-h-[80vh] overflow-y-auto">
+                <button
+                  onClick={() => setShowIbans(false)}
+                  className="absolute top-4 right-4 text-black/40 hover:text-black transition"
+                  aria-label="Kapat"
+                >
+                  <FaTimes />
+                </button>
+                <div className="text-center">
+                  <div className="w-14 h-14 mx-auto mb-3 rounded-2xl flex items-center justify-center text-2xl font-semibold text-[#1d1d1f] glass-soft">
+                    ₺
+                  </div>
+                  <h3 className="text-lg font-semibold text-[#1d1d1f]">IBAN</h3>
+                </div>
+
+                <div className="mt-4 space-y-3">
+                  {ibans.map((b, i) => (
+                    <div
+                      key={i}
+                      className="rounded-2xl border border-black/[0.06] bg-black/[0.02] p-3.5"
+                    >
+                      {b.label?.trim() && (
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-black/45 mb-1.5">
+                          {b.label}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <p className="flex-1 text-[13px] font-mono text-black/80 break-all leading-snug">
+                          {formatIban(b.value)}
+                        </p>
+                        <motion.button
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => handleCopy(b.value, `iban-${i}`)}
+                          aria-label="IBAN'ı kopyala"
+                          title="Kopyala"
+                          className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 glass-soft text-black/60 hover:text-black hover:bg-black/[0.04] transition-colors"
+                        >
+                          {copied === `iban-${i}` ? (
+                            <FaCheck className="text-sm text-[#141416]" />
+                          ) : (
+                            <FaCopy className="text-sm" />
                           )}
                         </motion.button>
                       </div>

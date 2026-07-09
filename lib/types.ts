@@ -16,6 +16,7 @@ export interface Profile {
   whatsapp?: string | null;
   website?: string | null;
   iban?: string | null;
+  ibans?: IbanItem[] | null;
   address?: string | null;
   addresses?: AddressItem[] | null;
   owner_id?: string | null;
@@ -34,6 +35,11 @@ export interface SocialLink {
 export interface AddressItem {
   label?: string; // ör. "Ofis", "Şube" (opsiyonel)
   value: string; // adres metni
+}
+
+export interface IbanItem {
+  label?: string; // ör. banka adı (opsiyonel)
+  value: string; // TR + 24 rakam
 }
 
 export type ThemeKey = "mono" | "navy" | "emerald" | "gold";
