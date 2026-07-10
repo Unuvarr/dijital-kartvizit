@@ -16,6 +16,7 @@ import {
   type IbanItem,
 } from "@/lib/types";
 import { buildSocialHref, platformMeta, socialLabel } from "@/lib/socials";
+import { formatPhone } from "@/lib/format";
 import BrandedQR from "@/components/BrandedQR";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
 import SocialIcon from "@/components/SocialIcon";
@@ -353,7 +354,7 @@ export default function ProfileClient({
               )}
               {profile.phone && (
                 <p className="text-sm text-black/40 mt-1.5 tabular-nums">
-                  {profile.phone}
+                  {formatPhone(profile.phone)}
                 </p>
               )}
             </motion.div>

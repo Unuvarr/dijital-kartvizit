@@ -9,6 +9,7 @@ import { getCurrentUserId } from "@/lib/auth";
 import { containerVariants, itemVariants, cardVariants } from "@/lib/motion";
 import { FaUserPlus, FaIdCard, FaArrowLeft, FaRedo, FaTrashAlt } from "react-icons/fa";
 import type { Profile } from "@/lib/types";
+import { formatPhone } from "@/lib/format";
 
 interface LeadRow {
   id: number;
@@ -223,7 +224,7 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="text-xs text-black/55 mt-1 space-x-3">
-                      {l.phone && <span>📞 {l.phone}</span>}
+                      {l.phone && <span>📞 {formatPhone(l.phone)}</span>}
                       {l.email && <span>✉️ {l.email}</span>}
                       {l.company && <span>🏢 {l.company}</span>}
                     </div>
