@@ -479,14 +479,14 @@ export default function ProfileClient({
           </div>
         </motion.div>
 
-        <div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-black/35">
+        <div className="mt-5 flex items-center justify-center gap-2 text-[12px] text-black/50">
           <a
-            href="/"
+            href={`/?utm_source=profil&utm_content=${slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold tracking-tight text-black/45 hover:text-black/70 transition-colors"
+            className="font-semibold tracking-tight text-black/60 hover:text-black/80 transition-colors"
           >
-            Rity Card
+            Rity Card — sen de edin
           </a>
           <span className="text-black/20">·</span>
           <a

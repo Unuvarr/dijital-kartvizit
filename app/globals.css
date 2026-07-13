@@ -149,3 +149,16 @@ textarea,
 @media (prefers-reduced-motion: reduce) {
   .signature-glow { animation: none !important; }
 }
+
+/* Landing giriş animasyonu — JS gerektirmez, hydration beklemez */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim-rise { animation: rise 0.6s ease-out both; }
+.anim-rise-1 { animation-delay: 0.08s; }
+.anim-rise-2 { animation-delay: 0.16s; }
+.anim-rise-3 { animation-delay: 0.24s; }
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise { animation: none; }
+}
