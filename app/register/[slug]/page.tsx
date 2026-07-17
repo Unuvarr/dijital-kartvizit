@@ -35,19 +35,28 @@ export default function RegisterPage({
     email: "",
   });
 
-  // Kart zaten aktifse profile yonlendir
+  // Kart zaten aktifse profile yonlendir; "yarı hazır" kartta formu önden doldur
   useEffect(() => {
     async function checkStatus() {
       try {
         const { data } = await supabase
           .from("digital_cards")
-          .select("status")
+          .select("status, first_name, last_name, phone")
           .eq("slug", slug)
           .single();
 
         if (data?.status === "Aktif") {
           router.push(`/profile/${slug}`);
           return;
+        }
+        // Önceden tanımlanmış kart: isim/soyisim hazır gelir, kişi kalanını ekler
+        if (data) {
+          setFormData((prev) => ({
+            ...prev,
+            first_name: data.first_name ?? prev.first_name,
+            last_name: data.last_name ?? prev.last_name,
+            phone: data.phone ?? prev.phone,
+          }));
         }
         setLoading(false);
       } catch (err) {
