@@ -112,7 +112,7 @@ export default function LandingClient() {
           href="/recover"
           className="text-[13px] text-white/60 hover:text-white transition-colors px-3 py-2.5 -mx-3 -my-2.5"
         >
-          Kartına eriş
+          Kart girişi
         </Link>
       </header>
 

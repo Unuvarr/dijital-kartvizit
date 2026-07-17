@@ -369,7 +369,7 @@ export default function EditPage({
                 onClick={() => router.push(`/recover`)}
                 className="btn-neon inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-white font-semibold"
               >
-                🔑 Erişimi Geri Al
+                🔑 Kart Girişi
               </motion.button>
               <button
                 onClick={() => router.push(`/profile/${slug}`)}
@@ -517,7 +517,7 @@ export default function EditPage({
               💡 İpucu: Kartın bu tarayıcıya bağlandı. Instagram/kamera içindeki
               geçici tarayıcıdaysan, kartını normal tarayıcında (Safari/Chrome)
               da bir kez aç — erişimin garantide olsun. Gerekirse
-              &quot;Erişimi Geri Al&quot; ile e-postanla her zaman bağlanabilirsin.
+              &quot;Kart Girişi&quot; ile e-postanla her zaman bağlanabilirsin.
             </p>
           </motion.div>
         )}

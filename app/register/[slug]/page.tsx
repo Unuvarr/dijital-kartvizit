@@ -88,7 +88,7 @@ export default function RegisterPage({
       if (existing && existing.length > 0) {
         setSubmitting(false);
         setError(
-          'Bu e-posta ile zaten bir kartınız var. Erişmek için "Erişimi Geri Al" sayfasını kullanın.'
+          'Bu e-posta ile zaten bir kartınız var. Erişmek için "Kart Girişi" sayfasını kullanın.'
         );
         return;
       }

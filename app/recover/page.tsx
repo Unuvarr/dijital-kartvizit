@@ -142,11 +142,11 @@ export default function RecoverPage() {
             <motion.div variants={itemVariants} className="text-center mb-6">
               <div className="text-5xl mb-3">🔑</div>
               <h1 className="text-2xl font-bold neon-text mb-2">
-                Kartına Erişimi Geri Al
+                Kart Girişi
               </h1>
               <p className="text-black/55 text-sm">
-                Telefonunu mu değiştirdin? Kayıt sırasında kullandığın e-postayı
-                gir, sana giriş linki gönderelim.
+                Kartına kayıtlı e-postayı gir, sana giriş linki gönderelim.
+                Şifre yok — linke tıkladığın telefon kartının anahtarı olur.
               </p>
             </motion.div>
 

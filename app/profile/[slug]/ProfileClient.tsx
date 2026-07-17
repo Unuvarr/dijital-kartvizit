@@ -472,7 +472,7 @@ export default function ProfileClient({
                   onClick={() => router.push(`/recover?slug=${slug}`)}
                   className="text-xs text-black/35 hover:text-black/60 transition-colors"
                 >
-                  Bu kart sana mı ait? Eriş
+                  Bu kartın sahibi misin? Giriş yap
                 </button>
               </div>
             )}

@@ -13,7 +13,7 @@ export default function NotFound() {
           href="/recover"
           className="btn-neon inline-block px-6 py-3 rounded-xl text-white font-semibold"
         >
-          Kartına eriş
+          Kart girişi
         </Link>
       </div>
     </div>
