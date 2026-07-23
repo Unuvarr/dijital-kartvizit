@@ -51,13 +51,15 @@ export default function AdminPage() {
     }
   }, []);
 
-  // Kayitli anahtar varsa otomatik dene
+  // Kayitli anahtar varsa otomatik dene (senkron setState kaskadindan kacinmak icin ertelenir)
   useEffect(() => {
     const saved = localStorage.getItem("rity_admin_key");
-    if (saved) {
+    if (!saved) return;
+    const t = setTimeout(() => {
       setKey(saved);
       fetchStats(saved);
-    }
+    }, 0);
+    return () => clearTimeout(t);
   }, [fetchStats]);
 
   if (!authed) {
