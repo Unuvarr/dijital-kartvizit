@@ -1,14 +1,18 @@
 import { supabase } from "./supabaseClient";
 
 const VIEW_KEY = (slug: string) => `viewed:${slug}`;
+// /admin'e giris yapilmis cihaz ekip cihazidir: demo okutmalari istatistige girmez
+const ADMIN_DEVICE_KEY = "rity_admin_key";
 
 /**
  * Profil sayfasinda 1 gorunum kaydeder.
- * Ayni cihazdan 24 saat icinde tekrar saymaz (localStorage).
+ * Sayilmayanlar: kartin sahibi (ProfileClient'ta), yonetici cihazi,
+ * ayni cihazdan 24 saat icindeki tekrarlar (localStorage).
  * Dondurdugu deger yeni toplam view_count (RPC'den).
  */
 export async function trackView(slug: string): Promise<number | null> {
   try {
+    if (localStorage.getItem(ADMIN_DEVICE_KEY)) return null;
     const last = localStorage.getItem(VIEW_KEY(slug));
     if (last) {
       const lastTs = parseInt(last, 10);

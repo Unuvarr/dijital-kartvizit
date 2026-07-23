@@ -203,8 +203,9 @@ export default function AdminPage() {
         </div>
 
         <p className="text-[12px] text-white/30 mt-4">
-          Okutulmaya göre sıralı · Kayıt bekleyenler henüz aktive edilmemiş
-          &quot;yarı hazır&quot; kartlar
+          Okutulmaya göre sıralı · Sayılmayanlar: kart sahibinin kendi
+          okutmaları, bu panele giriş yapılmış cihazlar ve aynı cihazdan 24 saat
+          içindeki tekrarlar
         </p>
       </div>
     </main>
